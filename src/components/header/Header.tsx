@@ -8,16 +8,18 @@ import plus from '../../assets/icons/plus.svg';
 export default function Header() {
     return (
         <>
-            <div className='ae-d-flex'>
-                <div className="cu-logo-container">
-                    <div className="cu-logo"></div>
-                    <div className="cu-logo-text">Cognito</div>
-                    <img src={chevron_down} alt="chevron-down" />
-                </div>
+            <div className="app-header-container">
+                <div className='ae-d-flex'>
+                    <div className="cu-logo-container">
+                        <div className="cu-logo"></div>
+                        <div className="cu-logo-text">Cognito</div>
+                        <img src={chevron_down} alt="chevron-down" />
+                    </div>
 
-                <div className='ae-d-flex ae-flex-1 ae-justify-space-between'>
-                    <div className="ae-d-flex ae-align-center ae-gap-5"><img src={tabler_icon} alt="tabler-icon" /><span>Page Title</span></div>
-                    <div><button className="ae-btn ae-btn-outline-dark ae-gap-5"><img src={plus} alt="plus" /><span className="ae-btn-text">New Project</span></button></div>
+                    <div className='ae-d-flex ae-flex-1 ae-justify-space-between'>
+                        <div className="ae-d-flex ae-align-center ae-gap-5"><img src={tabler_icon} alt="tabler-icon" /><span>Page Title</span></div>
+                        <div><button className="ae-btn ae-btn-outline-dark ae-gap-5"><img src={plus} alt="plus" /><span className="ae-btn-text">New Project</span></button></div>
+                    </div>
                 </div>
             </div>
         </>
