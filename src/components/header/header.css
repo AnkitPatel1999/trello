@@ -1,3 +1,14 @@
-.cu-logo{
+.cu-logo-container{
     width: 150px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.cu-logo{
+    height: 16px; width: 16px; border-radius: 4px; background: #f72eb5c4;
+}
+
+.cu-logo-text{
+    
 }

@@ -6,7 +6,8 @@
   -moz-osx-font-smoothing: grayscale;
 
 
-  --primary-color: #212124;   /* dark */
+  --primary-color: #333333;   /* dark */
+  --secondary-color:#666666;
   --green-color: #A9E851; /* green */
 
   --dark-color: #18181B;
@@ -39,7 +40,7 @@ body {
   background-image: url("./assets/Background noise.png");
   background-repeat: repeat;
   background-size: auto;
-  color: var(--white-color);
+  color: var(--primary-color);
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -82,7 +83,14 @@ body {
 }
 
 .ae-btn-outline-dark{
-  
+  color: var(--secondary-color);
+  background: transparent;
+  border: 1px solid var(--Transparent-Medium, #00000014);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 28px;
 }
 
 .ae-btn:hover {
