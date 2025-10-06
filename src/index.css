@@ -1,14 +1,346 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+
+  --primary-color: #212124;   /* dark */
+  --green-color: #A9E851; /* green */
+
+  --dark-color: #18181B;
+  --neutral-400-color: #A1A1AA;
+  --neutral-800-color: #27272A;
+  --white-color: #FFFFFF;
+  --white-fg-base-color: #F4F4F5;
+  --dark-fg-subtle-color: #A1A1AA;
+  --dark-fg-disabled-color: #52525B;
+  --muted-color: #71717A;
+
+  --font-family-inter: 'Inter', sans-serif;
+  --fs-xsm: 12px; /* extra small */
+  --fs-sm: 13px; /* small */
+  --fs-md: 14px; /* medium */
+  --fs-lg: 16px; /* large */
+  --fs-xlg: 18px; /* large */
+  --fs-2xlg: 24px; /* 2x large */
+  --fs-3xlg: 40px; /* 2x large */
+  --fs-4xlg: 56px; /* 4x large */
+
+  --fw-400: 400;
+  --fw-500: 500;
+  --fw-600: 600;
+}
+
+
+body {
+  background-color: var(--primary-color);
+  background-image: url("./assets/Background noise.png");
+  background-repeat: repeat;
+  background-size: auto;
+  color: var(--white-color);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family-inter);
+  line-height: 1.5;
+  font-weight: 400;
+  font-size:  var(--fs-sm);
+}
+
+.ae-max-width-1440 {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* common button classes start*/
+
+.ae-btn {
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 6px 12px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.ae-btn-red {
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ae-btn-red:hover {
+  background-color: #DC2626;
+}
+
+.ae-btn-outline-dark{
+  
+}
+
+.ae-btn:hover {
+  /* background-color: darken(var(--green-color), 5%); */
+}
+
+.ae-btn .ae-btn-icon {
+  width: 15px; height: 15px;
+}
+
+.ae-btn .ae-btn-text {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  font-family: var(--font-family-inter);
+}
+
+.ae-btn-disabled{
+  /* box-shadow:  0px 0px 1px #FFFFFF1A,
+    0px 1px 2px 0px #FFFFFF1A,
+    0px 0.75px 0px 0px #FFFFFF1A inset; */
+  box-shadow: inset 0 0 0 1px #FFFFFF1A;
+  /* border: 1px solid var(--borders-border-base, #FFFFFF1A); */
+  background: transparent;
+  color: var(--foregrounds-fg-disabled, #52525B);
+}
+
+.ae-btn-green{
+  box-shadow: 0px 0px 0px 1px #1F6619,
+  0px 1px 2px 0px #1F661966,
+  0px 0.75px 0px 0px #FFFFFF33 inset;
+
+  /* box-shadow: 0px 1px 2px 0px #1F661966; */
+  /* box-shadow: 0px 0.75px 0px 0px #FFFFFF33 inset; */
+  background: var(--green-color);
+}
+
+.ae-btn-green .ae-btn-text{
+  color: var(--dark-color);
+}
+
+.ae-btn-dark{
+    box-shadow: 0px 0px 0px 1px #00000014,
+      0px 1px 2px 0px #0000001F;
+    background: var(--buttons-button-neutral, #FFFFFF0A);
+}
+
+.ae-dark-color {
+  color: var(--dark-color);
+}
+.ae-white-fg-base-color {
+  color: var(--white-fg-base-color);
+}
+
+.ae-dark-fg-subtle-color {
+  color: var(--dark-fg-subtle-color);
+}
+
+.ae-dark-fg-disabled-color {
+  color: var(--dark-fg-disabled-color);
+}
+
+.ae-radius-6 {
+  border-radius: 6px;
+}
+
+
+
+
+/* common button classes end*/
+
+
+/* padding & margin classes started */
+
+.ae-mx-28 {
+  margin-left: 28px;
+  margin-right: 28px;
+}
+.ae-my-28 {
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+
+.ae-px-28 {
+  padding-left: 28px;
+  padding-right: 28px;
+}
+.ae-py-28 {
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.ae-mt-48 {
+  margin-top: 48px;
+}
+
+.ae-mt-20 {
+  margin-top: 20px;
+}
+.ae-mb-20 {
+  margin-bottom: 20px;  
+}
+.ae-ml-20 {
+  margin-left: 20px;
+}
+.ae-mr-20 {
+  margin-right: 20px;  
+}
+
+/* padding & margin classes ended  */
+
+.ae-d-flex {
+  display: flex;
+}
+
+.ae-flex-1{
+  flex: 1;
+}
+
+.ae-f-column {
+  flex-direction: column;
+}
+
+.ae-justify-space-between {
+  justify-content: space-between;
+}
+
+.ae-justify-content-right {
+  justify-content: right;
+}
+.ae-justify-content-center {
+  justify-content: center;
+}
+
+.ae-align-center {
+  align-items: center;
+}
+
+.ae-gap-12 {
+  gap: 12px;
+}
+
+.ae-gap-16 {
+  gap: 16px;
+}
+
+.ae-gap-10 {
+  gap: 10px;
+}
+
+.ae-gap-8 {
+  gap: 8px;
+}
+
+.ae-gap-5 {
+  gap: 5px;
+}
+
+.ae-overflow-auto { overflow: auto;}
+
+
+
+/* shimmer effect css start */
+.ae-shimmer {
+  position: relative;
+  background-color: #71717a00;
+  overflow: hidden;
+  border-radius: 4px;
+  /* width: 200px;  explicit width */
+  height: 20px;  /* explicit height */
+}
+
+.ae-shimmer.circle {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.ae-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;  
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,        /* transparent */
+    rgba(255, 255, 255, 0.15) 50%,    /* light shimmer */
+    rgba(255, 255, 255, 0) 100%       /* transparent */
+  );
+  animation: ae-shimmer 1.5s linear infinite;
+}
+
+@keyframes ae-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* shimmer effect css end */
+
+
+
+/* scroll bar css start */
+
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+    width: 4px;
+    /* scrollbar width */
+    /* height: 8px;           scrollbar height for horizontal */
+}
+
+::-webkit-scrollbar-track {
+    background: none;
+    /* track color */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    /* scrollbar handle */
+    background: var(--borders-border-base, #FFFFFF1A);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #888;
+    /* hover effect */
+}
+
+/* Firefox */
+* {
+    scrollbar-width: initial;
+    /* auto | thin | none */
+    /* scrollbar-color: #555 #1a1a1a;   thumb color | track color */
+}
+
+/* scroll bar css end */
+
+
+
+/* For tablets & mobile (≤ 768px) */
+@media (max-width: 768px) {
+
+  .ae-m-m-0{
+    margin: 0;
+  }
+
+  .ae-m-py-24 {
+    padding: 0 24px;
+  }
+
+  .hidden-phone{
+    display: none;
+  }
+
+
 }
