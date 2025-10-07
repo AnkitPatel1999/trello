@@ -22,4 +22,5 @@
       min-width: 0;     /* allow horizontal scroll inside */
       min-height: 0;    /* allow vertical scroll inside */
       overflow: auto;   /* scroll only here */
+      margin-right: 8px;
   }
