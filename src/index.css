@@ -69,6 +69,16 @@ body {
   transition: background-color 0.2s;
 }
 
+.ae-btn-flat{
+  background: none;
+  border: none;
+  width: fit-content;
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: #999;
+  
+}
+
 .ae-btn-red {
   background-color: #EF4444;
   color: white;
@@ -256,6 +266,13 @@ body {
 
 .ae-overflow-auto { overflow: auto;}
 
+
+.ae-label{
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 1px 8px;
+}
 
 
 /* shimmer effect css start */

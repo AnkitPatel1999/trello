@@ -2,6 +2,9 @@ import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import "./column.css";
 
+import plus from "../../assets/icons/plus.svg"
+
+
 type ColumnProps = {
   title: string;
   color: string;
@@ -15,13 +18,18 @@ const Column = ({ title, color, cards, allStatuses, onAdd, onMove }: ColumnProps
   return (
     <section className="column" style={{ '--dot-color': color } as React.CSSProperties}>
       <header className="column-header">
-        <span className="color-dot" />
-        <h3 className="column-title">{title} <small> {cards.length}</small></h3>
-        <button className="new-btn" onClick={() => {
+        <h3 className="ae-label column-title color-dot">{title} </h3>
+        <small> {cards.length}</small>
+       
+      </header>
+
+      <button className="ae-btn ae-btn-flat ae-gap-5" onClick={() => {
           const t = prompt('New card title?');
           if (t && t.trim()) onAdd(t.trim());
-        }}>+ New</button>
-      </header>
+        }}>
+          <img className='ae-btn-icon' src={plus} alt="" />
+          <span className='ae-btn-text'>New</span>
+        </button>
 
       <ul className="cards">
         {cards.map(card => (

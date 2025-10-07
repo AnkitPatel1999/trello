@@ -60,4 +60,9 @@
   display: flex;
 }
 
-.board-header-right span{ padding: 2px 6px; }
+.board-header-right span{ 
+  padding: 2px 6px;
+  font-size: var(--fs-sm);
+  color: #666666;
+  font-weight: 400;
+ }
