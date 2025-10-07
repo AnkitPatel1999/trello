@@ -1,0 +1,41 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(220px, 1fr));
+  gap: 16px; 
+  padding: 16px;
+
+}
+
+
+.board-container{
+  min-height: 100vh;
+  background-color: #fff;
+  backdrop-filter: blur(10px);
+  border: 1px solid #EBEBEB;
+  border-radius: 8px;
+
+}
+
+
+.cu-dot{
+  display: inline-block;
+  height: 2px;
+  width: 2px;
+  background: #B3B3B3;
+}
+
+
+.cu-all-div{
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  border-bottom: 1px solid #EBEBEB;
+  padding: 16px;
+
+}
+
+.cu-all-inner{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

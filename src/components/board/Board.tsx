@@ -1,15 +1,21 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Column from './Column';
+import Column from '../column/Column';
 import { COLUMNS } from '../../domain/columns';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import { addCard, moveCard as moveCardAction, hydrateIfEmpty } from '../../store/cardsSlice';
 import type { RootState } from '../../store';
+import './board.css';
+
+import tabler_icon2 from "../../assets/icons/tabler_icon2.svg"
+import right_icon from "../../assets/icons/right_icon.svg"
+
 
 const Board = () => {
   const dispatch = useDispatch();
   const cards = useSelector((state: RootState) => state.cards.cards as Card[]);
+  const taskCount = 1;
 
   useEffect(() => {
     dispatch(hydrateIfEmpty());
@@ -24,19 +30,36 @@ const Board = () => {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${COLUMNS.length}, minmax(220px, 1fr))`, gap: 16 }}>
-      {COLUMNS.map(cfg => (
-        <Column
-          key={cfg.key}
-          title={cfg.title}
-          color={cfg.badgeColor}
-          cards={cards.filter((c: Card) => c.status === cfg.key)}
-          allStatuses={ALL_STATUSES}
-          onAdd={(title) => handleAdd(title, cfg.key)}
-          onMove={handleMove}
-        />
-      ))}
-    </div>
+    <>
+      <div className='board-container'>
+        <div className='cu-all-div'>
+          <img src={tabler_icon2} alt="" />
+          <div className="cu-all-inner"><span>All</span> <span className="cu-dot"></span> <span>{taskCount}</span></div>
+          <img src={right_icon} alt="" />
+        </div>
+
+        <div>
+          <div className="board-scroll">
+            <div
+              className="board"
+              style={{ '--columns': COLUMNS.length } as React.CSSProperties}
+            >
+              {COLUMNS.map(cfg => (
+                <Column
+                  key={cfg.key}
+                  title={cfg.title}
+                  color={cfg.badgeColor}
+                  cards={cards.filter((c: Card) => c.status === cfg.key)}
+                  allStatuses={ALL_STATUSES}
+                  onAdd={(title) => handleAdd(title, cfg.key)}
+                  onMove={handleMove}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

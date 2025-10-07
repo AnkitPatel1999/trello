@@ -1,18 +1,27 @@
 import './App.css'
 import Header from './components/header/Header'
 import Board from './components/board/Board'
+import LeftSidebar from './components/leftsidebar/LeftSidebar'
 
 function App() {
 
   return (
     <>
       <div className='app-container'>
-        <Header></Header>
-        <div style={{ padding: 16 }}>
-          <Board />
+
+        <div className='ae-d-flex'>
+          <div className='left-sidebar-component'>
+            <LeftSidebar />
+          </div>
+          <div className='right-sidebar-component'>
+            <Header></Header>
+            <div className='board-component'>
+              <Board />
+            </div>
+          </div>
         </div>
       </div>
-      
+
     </>
   )
 }

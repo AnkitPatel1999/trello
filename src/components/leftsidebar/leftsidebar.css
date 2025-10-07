@@ -1,0 +1,138 @@
+.left-sidebar {
+
+}
+
+
+.cu-logo-container{
+    width: 220px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 12px;
+}
+
+.cu-logo{
+    height: 16px; width: 16px; border-radius: 4px; background: #f72eb5c4;
+}
+
+.cu-logo-text{
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: #666;
+}
+
+.sidebar-section {
+    padding: 0px 10px;
+}
+
+.sidebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #b3b3b3;
+    padding: 10px 4px;
+}
+
+.sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-item {
+    padding: 4px 2px 4px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    gap: 5px;
+}
+
+/* .sidebar-item:hover {
+    background-color: #e5e7eb;
+} */
+
+.sidebar-item span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: #666;
+}
+
+.folder-item {
+    position: relative;
+    padding-top: 0;
+}
+
+.folder-icon {
+    font-size: 16px;
+}
+
+.nested-list {
+    list-style: none;
+    padding: 0;
+    margin: 0px 0 0 20px;
+    position: relative;
+}
+
+.nested-list::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: #8C8C8C;
+    border-radius: 1px;
+}
+
+.nested-item {
+    padding: 6px 8px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #6b7280;
+    font-size: 13px;
+    position: relative;
+    /* margin-left: 12px; */
+}
+
+.nested-item:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+/* Curved horizontal line */
+.nested-item::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 1px;
+    background-color: #8C8C8C;
+    border-radius: 0 1px 0 0;
+}
+
+/* Curved vertical line */
+/* .nested-item::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 50%;
+  width: 2px;
+  background-color: #d1d5db;
+  border-radius: 0 0 0 1px;
+} */
+
+.nested-item:last-child::after {
+    bottom: 50%;
+}
+
+.nested-item:only-child::after {
+    display: none;
+}

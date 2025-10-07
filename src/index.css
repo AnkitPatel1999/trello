@@ -34,6 +34,7 @@
   --fw-600: 600;
 }
 
+html, body { overflow-x: hidden; }
 
 body {
   background-color: var(--primary-color);
@@ -63,7 +64,7 @@ body {
   display: flex;
   align-items: center;
   border-radius: 4px;
-  padding: 6px 12px;
+  padding: 1px 6px;
   text-decoration: none;
   transition: background-color 0.2s;
 }
@@ -204,6 +205,10 @@ body {
 
 .ae-d-flex {
   display: flex;
+}
+
+.ae-flex-none{
+  flex: none;
 }
 
 .ae-flex-1{

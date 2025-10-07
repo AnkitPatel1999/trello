@@ -3,3 +3,12 @@
 }
 
 
+.left-sidebar-component{
+    width: 220px;
+    flex: none;
+}
+
+.board-component{
+    /* width: 100%; */
+    /* overflow: auto; */
+}
