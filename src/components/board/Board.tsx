@@ -32,10 +32,19 @@ const Board = () => {
   return (
     <>
       <div className='board-container'>
-        <div className='cu-all-div'>
-          <img src={tabler_icon2} alt="" />
-          <div className="cu-all-inner"><span>All</span> <span className="cu-dot"></span> <span>{taskCount}</span></div>
-          <img src={right_icon} alt="" />
+        
+        <div className="board-header">
+          <div className='board-header-left'>
+            <img src={tabler_icon2} alt="" />
+            <div className="cu-all-inner"><span>All</span> <span className="cu-dot"></span> <span>{taskCount}</span></div>
+            <img src={right_icon} alt="" />
+          </div>
+
+          <div className="board-header-right">
+            <span>Filter</span>
+            <span>Sort</span>
+            <span>Options</span>
+          </div>
         </div>
 
         <div>
