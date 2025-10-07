@@ -1,6 +1,9 @@
 .column {
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #EBEBEB;
+  padding: 10px;
+  height: 100vh;
 }
 
 .column-header {
