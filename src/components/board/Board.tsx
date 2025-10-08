@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Column from '../column/Column';
+import Phase from '../phase/Phase';
 import TaskModal from '../taskmodal/TaskModal';
-import { COLUMNS } from '../../domain/columns';
+import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import { moveCard as moveCardAction, hydrateIfEmpty } from '../../store/cardsSlice';
@@ -59,10 +59,10 @@ const Board = () => {
           <div className="board-scroll">
             <div
               className="board"
-              style={{ '--columns': COLUMNS.length } as React.CSSProperties}
+              style={{ '--phases': PHASES.length } as React.CSSProperties}
             >
-              {COLUMNS.map(cfg => (
-                <Column
+              {PHASES.map(cfg => (
+                <Phase
                   key={cfg.key}
                   title={cfg.title}
                   color={cfg.badgeColor}

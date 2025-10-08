@@ -1,17 +1,15 @@
 import { Status } from './status';
 
-export type ColumnConfig = {
+export type PhaseConfig = {
   key: Status;
   title: string;
   badgeColor: string;
 };
 
-export const COLUMNS: ColumnConfig[] = [
+export const PHASES: PhaseConfig[] = [
   { key: Status.Proposed, title: 'Proposed', badgeColor: 'var(--purple-500, #8b5cf6)' },
   { key: Status.Todo, title: 'Todo', badgeColor: 'var(--blue-500, #3b82f6)' },
   { key: Status.InProgress, title: 'In Progress', badgeColor: 'var(--cyan-500, #06b6d4)' },
   { key: Status.Done, title: 'Done', badgeColor: 'var(--green-500, #22c55e)' },
   { key: Status.Deployed, title: 'Deployed', badgeColor: 'var(--zinc-400, #a1a1aa)' },
 ];
-
-

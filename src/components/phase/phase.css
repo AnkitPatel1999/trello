@@ -1,4 +1,4 @@
-.column {
+.phase {
   display: flex;
   flex-direction: column;
   border-right: 1px solid #EBEBEB;
@@ -6,7 +6,7 @@
   height: 100vh;
 }
 
-.column-header {
+.phase-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -18,7 +18,7 @@
   border-radius: 4px;
 }
 
-.column-title {
+.phase-title {
   margin: 0;
 }
 

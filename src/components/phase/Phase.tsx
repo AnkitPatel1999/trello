@@ -1,12 +1,12 @@
 import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
-import "./column.css";
+import "./phase.css";
 
 import plus from "../../assets/icons/plus.svg"
 
 
-type ColumnProps = {
+type PhaseProps = {
   title: string;
   color: string;
   cards: Card[];
@@ -15,11 +15,11 @@ type ColumnProps = {
   onMove: (id: string, to: Status) => void;
 };
 
-const Column = ({ title, color, cards, allStatuses, onAdd, onMove }: ColumnProps) => {
+const Phase = ({ title, color, cards, allStatuses, onAdd, onMove }: PhaseProps) => {
   return (
-    <section className="column" style={{ '--dot-color': color } as React.CSSProperties}>
-      <header className="column-header">
-        <h3 className="ae-label column-title color-dot">{title} </h3>
+    <section className="phase" style={{ '--dot-color': color } as React.CSSProperties}>
+      <header className="phase-header">
+        <h3 className="ae-label phase-title color-dot">{title} </h3>
         <small> {cards.length}</small>
        
       </header>
@@ -43,4 +43,4 @@ const Column = ({ title, color, cards, allStatuses, onAdd, onMove }: ColumnProps
   );
 };
 
-export default Column;
+export default Phase;
