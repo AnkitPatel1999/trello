@@ -11,7 +11,7 @@ type ColumnProps = {
   color: string;
   cards: Card[];
   allStatuses: Status[];
-  onAdd: (title: string, subtitles?: string[]) => void;
+  onAdd: () => void;
   onMove: (id: string, to: Status) => void;
 };
 
@@ -24,14 +24,7 @@ const Column = ({ title, color, cards, allStatuses, onAdd, onMove }: ColumnProps
        
       </header>
 
-      <button className="ae-btn ae-btn-flat ae-gap-5" onClick={() => {
-          const title = prompt('New card title?');
-          if (title && title.trim()) {
-            const subtitlesInput = prompt('Enter subtitles (comma-separated):');
-            const subtitles = subtitlesInput ? subtitlesInput.split(',').map(s => s.trim()).filter(s => s) : [];
-            onAdd(title.trim(), subtitles);
-          }
-        }}>
+      <button className="ae-btn ae-btn-flat ae-gap-5" onClick={onAdd}>
           <img className='ae-btn-icon' src={plus} alt="" />
           <span className='ae-btn-text'>New</span>
         </button>
