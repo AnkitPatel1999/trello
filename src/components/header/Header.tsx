@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import ProjectModal from '../projectmodal/ProjectModal';
 import "./header.css";
 
@@ -7,6 +8,7 @@ import plus from '../../assets/icons/plus.svg';
 
 
 export default function Header() {
+    const { user, logout } = useAuth();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
     const handleCreateProject = () => {
@@ -17,13 +19,20 @@ export default function Header() {
         setIsProjectModalOpen(false);
     };
 
+    const handleLogout = () => {
+        logout();
+    };
+
     return (
         <>
             <div className="app-header-container">
                 <div className='ae-d-flex'>
                     <div className='ae-d-flex ae-flex-1 ae-justify-space-between'>
-                        <div className="ae-d-flex ae-align-center ae-gap-5"><img src={tabler_icon} alt="tabler-icon" /><span>Page Title</span></div>
-                        <div>
+                        <div className="ae-d-flex ae-align-center ae-gap-5">
+                            <img src={tabler_icon} alt="tabler-icon" />
+                            <span>Page Title</span>
+                        </div>
+                        <div className="ae-d-flex ae-align-center ae-gap-10">
                             <button 
                                 className="ae-btn ae-btn-outline-dark ae-gap-5"
                                 onClick={handleCreateProject}
@@ -31,6 +40,17 @@ export default function Header() {
                                 <img src={plus} alt="plus" />
                                 <span className="ae-btn-text">New Project</span>
                             </button>
+                            {user && (
+                                <div className="ae-d-flex ae-align-center ae-gap-5">
+                                    <span className="user-email">{user.email}</span>
+                                    <button 
+                                        className="ae-btn ae-btn-red ae-gap-5"
+                                        onClick={handleLogout}
+                                    >
+                                        <span className="ae-btn-text">Logout</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
