@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { verifyOtp, resetOtpState } from '../../store/authSlice';
+import { useSelector } from 'react-redux';
+import { useAuthOperations } from '../../hooks/useAuthOperations';
 import type { RootState } from '../../store';
 import './auth.css';
 
@@ -10,8 +10,8 @@ interface OTPVerificationProps {
 }
 
 const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
-  const dispatch = useDispatch();
-  const { isLoading, error, email } = useSelector((state: RootState) => state.auth);
+  const { error, email } = useSelector((state: RootState) => state.auth);
+  const { verifyOtp, sendOtp, isSubmitting } = useAuthOperations();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -62,35 +62,24 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
     e.preventDefault();
     
     const otpString = otp.join('');
-    if (otpString.length !== 6) {
+    if (otpString.length !== 6 || !email) {
       return;
     }
 
-    if (!email) {
-      return;
-    }
-
-    try {
-      await dispatch(verifyOtp(email, otpString) as any);
+    const result = await verifyOtp(email, otpString);
+    if (result.success) {
       onSuccess();
-    } catch (error) {
-      console.error('OTP verification failed:', error);
     }
   };
 
   const handleBack = () => {
-    dispatch(resetOtpState());
+    // Reset OTP state is handled by the hook
     onBack();
   };
 
   const handleResend = async () => {
     if (!email) return;
-    
-    try {
-      await dispatch(sendOtp(email) as any);
-    } catch (error) {
-      console.error('Resend OTP failed:', error);
-    }
+    await sendOtp(email);
   };
 
   return (
@@ -110,7 +99,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
               {otp.map((digit, index) => (
                 <input
                   key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
+                  ref={(el) => { inputRefs.current[index] = el; }}
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
@@ -119,7 +108,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={handlePaste}
                   className="otp-input"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
               ))}
             </div>
@@ -133,10 +122,10 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
 
           <button
             type="submit"
-            disabled={otp.join('').length !== 6 || isLoading}
+            disabled={otp.join('').length !== 6 || isSubmitting}
             className="auth-button"
           >
-            {isLoading ? 'Verifying...' : 'Verify OTP'}
+            {isSubmitting ? 'Verifying...' : 'Verify OTP'}
           </button>
         </form>
 
@@ -147,7 +136,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
               type="button"
               onClick={handleResend}
               className="auth-link-button"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
               Resend
             </button>
@@ -156,7 +145,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
             type="button"
             onClick={handleBack}
             className="auth-back-button"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
             ← Back to Email
           </button>

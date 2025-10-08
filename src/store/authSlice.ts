@@ -1,11 +1,36 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, User } from '../domain/auth';
 import { authService } from '../services/auth';
 
+// Async thunks for better error handling
+export const sendOtpThunk = createAsyncThunk(
+  'auth/sendOtp',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await authService.sendOtp(email);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to send OTP');
+    }
+  }
+);
+
+export const verifyOtpThunk = createAsyncThunk(
+  'auth/verifyOtp',
+  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
+    try {
+      const response = await authService.verifyOtp(email, otp);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to verify OTP');
+    }
+  }
+);
+
 const initialState: AuthState = {
-  user: authService.getStoredUser(),
-  isAuthenticated: !!authService.getStoredToken(),
+  user: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
   otpSent: false,
@@ -21,11 +46,6 @@ const authSlice = createSlice({
     },
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
-    },
-    setOtpSent(state, action: PayloadAction<{ email: string }>) {
-      state.otpSent = true;
-      state.email = action.payload.email;
-      state.error = null;
     },
     setUser(state, action: PayloadAction<User>) {
       state.user = action.payload;
@@ -52,57 +72,58 @@ const authSlice = createSlice({
       state.error = null;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Send OTP
+      .addCase(sendOtpThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(sendOtpThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.otpSent = true;
+        state.email = action.meta.arg;
+        state.error = null;
+      })
+      .addCase(sendOtpThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Verify OTP
+      .addCase(verifyOtpThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtpThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.success && action.payload.user && action.payload.token) {
+          state.user = action.payload.user;
+          state.isAuthenticated = true;
+          state.otpSent = false;
+          state.email = null;
+          state.error = null;
+        } else {
+          state.error = action.payload.message || 'Verification failed';
+        }
+      })
+      .addCase(verifyOtpThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+  },
 });
 
 export const {
   setLoading,
   setError,
-  setOtpSent,
   setUser,
   logout,
   clearError,
   resetOtpState,
 } = authSlice.actions;
 
-// Async thunks
-export const sendOtp = (email: string) => async (dispatch: any) => {
-  try {
-    dispatch(setLoading(true));
-    dispatch(clearError());
-    
-    const response = await authService.sendOtp(email);
-    
-    if (response.success) {
-      dispatch(setOtpSent({ email }));
-    } else {
-      dispatch(setError(response.message));
-    }
-  } catch (error: any) {
-    dispatch(setError(error.message || 'Failed to send OTP'));
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
-export const verifyOtp = (email: string, otp: string) => async (dispatch: any) => {
-  try {
-    dispatch(setLoading(true));
-    dispatch(clearError());
-    
-    const response = await authService.verifyOtp(email, otp);
-    
-    if (response.success && response.user && response.token) {
-      authService.storeAuthData(response.token, response.user);
-      dispatch(setUser(response.user));
-    } else {
-      dispatch(setError(response.message || 'Invalid OTP'));
-    }
-  } catch (error: any) {
-    dispatch(setError(error.message || 'Failed to verify OTP'));
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+// Export async thunks
+export { sendOtpThunk as sendOtp, verifyOtpThunk as verifyOtp };
 
 export const logoutUser = () => async (dispatch: any) => {
   try {
