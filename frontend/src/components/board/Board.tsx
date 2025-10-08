@@ -1,0 +1,95 @@
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Phase from '../phase/Phase';
+import TaskModal from '../taskmodal/TaskModal';
+import { PHASES } from '../../domain/phases';
+import { Status, ALL_STATUSES } from '../../domain/status';
+import type { Card } from '../../domain/types';
+import { moveCard as moveCardAction, hydrateIfEmpty } from '../../store/cardsSlice';
+import { hydrateIfEmpty as hydrateProjectsIfEmpty } from '../../store/projectsSlice';
+import type { RootState } from '../../store';
+import './board.css';
+
+import tabler_icon2 from "../../assets/icons/tabler_icon2.svg"
+import right_icon from "../../assets/icons/right_icon.svg"
+
+
+const Board = () => {
+  const dispatch = useDispatch();
+  const allCards = useSelector((state: RootState) => state.cards.cards as Card[]);
+  const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalStatus, setModalStatus] = useState<Status>(Status.Proposed);
+
+  // Filter cards by active project
+  const cards = allCards.filter(card => card.projectId === activeProjectId);
+  const taskCount = cards.length;
+
+  useEffect(() => {
+    dispatch(hydrateIfEmpty());
+    dispatch(hydrateProjectsIfEmpty());
+  }, [dispatch]);
+
+  const handleOpenModal = (status: Status) => {
+    setModalStatus(status);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleMove = (id: string, to: Status) => {
+    dispatch(moveCardAction({ id, to }));
+  };
+
+  return (
+    <>
+      <div className='board-container'>
+        
+        <div className="board-header">
+          <div className='board-header-left'>
+            <img src={tabler_icon2} alt="" />
+            <div className="cu-all-inner"><span>All</span> <span className="cu-dot"></span> <span>{taskCount}</span></div>
+            <img src={right_icon} alt="" />
+          </div>
+
+          <div className="board-header-right">
+            <span>Filter</span>
+            <span>Sort</span>
+            <span>Options</span>
+          </div>
+        </div>
+
+        <div>
+          <div className="board-scroll">
+            <div
+              className="board"
+              style={{ '--phases': PHASES.length } as React.CSSProperties}
+            >
+              {PHASES.map(cfg => (
+                <Phase
+                  key={cfg.key}
+                  title={cfg.title}
+                  color={cfg.badgeColor}
+                  cards={cards.filter((c: Card) => c.status === cfg.key)}
+                  allStatuses={ALL_STATUSES}
+                  onAdd={() => handleOpenModal(cfg.key)}
+                  onMove={handleMove}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <TaskModal 
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        status={modalStatus}
+      />
+    </>
+  );
+}
+
+export default Board

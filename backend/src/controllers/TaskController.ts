@@ -1,0 +1,242 @@
+import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { ApiResponse } from '../utils/apiResponse';
+import { asyncHandler } from '../utils/asyncHandler';
+import { logger } from '../utils/logger';
+import { Task } from '../models/Task.model';
+import { Project } from '../models/Project.model';
+import { generateId } from '../utils/helpers';
+
+export class TaskController {
+  createTask = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { title, description, subtitles, status, projectId } = req.body;
+    const userId = req.user!.id;
+
+    try {
+      // Verify project belongs to user
+      const project = await Project.findOne({ _id: projectId, userId, isActive: true });
+      if (!project) {
+        ApiResponse.badRequest(res, 'Project not found or access denied');
+        return;
+      }
+
+      const task = await Task.create({
+        title,
+        description,
+        subtitles: subtitles || [],
+        status: status || 'proposed',
+        projectId,
+        userId,
+      });
+
+      logger.info('Task created', { taskId: task._id, userId, projectId, title });
+
+      ApiResponse.created(res, 'Task created successfully', {
+        id: task._id,
+        title: task.title,
+        description: task.description,
+        subtitles: task.subtitles,
+        status: task.status,
+        projectId: task.projectId,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      });
+    } catch (error) {
+      logger.error('Failed to create task', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId,
+        projectId,
+        title,
+      });
+      ApiResponse.internalServerError(res, 'Failed to create task');
+    }
+  });
+
+  getTasks = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.id;
+    const { projectId, status } = req.query;
+
+    try {
+      const filter: any = { userId };
+      
+      if (projectId) {
+        // Verify project belongs to user
+        const project = await Project.findOne({ _id: projectId, userId, isActive: true });
+        if (!project) {
+          ApiResponse.badRequest(res, 'Project not found or access denied');
+          return;
+        }
+        filter.projectId = projectId;
+      }
+
+      if (status) {
+        filter.status = status;
+      }
+
+      const tasks = await Task.find(filter)
+        .sort({ createdAt: -1 })
+        .select('_id title description subtitles status projectId createdAt updatedAt');
+
+      const formattedTasks = tasks.map(task => ({
+        id: task._id,
+        title: task.title,
+        description: task.description,
+        subtitles: task.subtitles,
+        status: task.status,
+        projectId: task.projectId,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      }));
+
+      ApiResponse.success(res, 'Tasks retrieved successfully', formattedTasks);
+    } catch (error) {
+      logger.error('Failed to get tasks', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId,
+        projectId,
+      });
+      ApiResponse.internalServerError(res, 'Failed to retrieve tasks');
+    }
+  });
+
+  getTaskById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.id;
+
+    try {
+      const task = await Task.findOne({ _id: id, userId });
+
+      if (!task) {
+        ApiResponse.notFound(res, 'Task not found');
+        return;
+      }
+
+      ApiResponse.success(res, 'Task retrieved successfully', {
+        id: task._id,
+        title: task.title,
+        description: task.description,
+        subtitles: task.subtitles,
+        status: task.status,
+        projectId: task.projectId,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      });
+    } catch (error) {
+      logger.error('Failed to get task', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        taskId: id,
+        userId,
+      });
+      ApiResponse.internalServerError(res, 'Failed to retrieve task');
+    }
+  });
+
+  updateTask = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const { title, description, subtitles, status } = req.body;
+    const userId = req.user!.id;
+
+    try {
+      const updateData: any = { updatedAt: new Date() };
+      
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (subtitles !== undefined) updateData.subtitles = subtitles;
+      if (status !== undefined) updateData.status = status;
+
+      const task = await Task.findOneAndUpdate(
+        { _id: id, userId },
+        updateData,
+        { new: true }
+      );
+
+      if (!task) {
+        ApiResponse.notFound(res, 'Task not found');
+        return;
+      }
+
+      logger.info('Task updated', { taskId: id, userId, title: task.title });
+
+      ApiResponse.success(res, 'Task updated successfully', {
+        id: task._id,
+        title: task.title,
+        description: task.description,
+        subtitles: task.subtitles,
+        status: task.status,
+        projectId: task.projectId,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      });
+    } catch (error) {
+      logger.error('Failed to update task', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        taskId: id,
+        userId,
+      });
+      ApiResponse.internalServerError(res, 'Failed to update task');
+    }
+  });
+
+  deleteTask = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.id;
+
+    try {
+      const task = await Task.findOneAndDelete({ _id: id, userId });
+
+      if (!task) {
+        ApiResponse.notFound(res, 'Task not found');
+        return;
+      }
+
+      logger.info('Task deleted', { taskId: id, userId });
+
+      ApiResponse.success(res, 'Task deleted successfully');
+    } catch (error) {
+      logger.error('Failed to delete task', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        taskId: id,
+        userId,
+      });
+      ApiResponse.internalServerError(res, 'Failed to delete task');
+    }
+  });
+
+  getTasksByProject = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { projectId } = req.params;
+    const userId = req.user!.id;
+
+    try {
+      // Verify project belongs to user
+      const project = await Project.findOne({ _id: projectId, userId, isActive: true });
+      if (!project) {
+        ApiResponse.badRequest(res, 'Project not found or access denied');
+        return;
+      }
+
+      const tasks = await Task.find({ projectId, userId })
+        .sort({ createdAt: -1 })
+        .select('_id title description subtitles status projectId createdAt updatedAt');
+
+      const formattedTasks = tasks.map(task => ({
+        id: task._id,
+        title: task.title,
+        description: task.description,
+        subtitles: task.subtitles,
+        status: task.status,
+        projectId: task.projectId,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      }));
+
+      ApiResponse.success(res, 'Project tasks retrieved successfully', formattedTasks);
+    } catch (error) {
+      logger.error('Failed to get project tasks', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        projectId,
+        userId,
+      });
+      ApiResponse.internalServerError(res, 'Failed to retrieve project tasks');
+    }
+  });
+}
