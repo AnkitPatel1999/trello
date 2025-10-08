@@ -1,4 +1,4 @@
-import type { LoginRequest, VerifyOtpRequest, AuthResponse } from '../domain/auth';
+import type { AuthResponse } from '../domain/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -62,10 +62,6 @@ class AuthService {
         };
         
         const mockToken = 'mock-jwt-token-' + Date.now();
-        
-        // Store auth data in localStorage
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        localStorage.setItem('auth_token', mockToken);
         
         return {
           success: true,

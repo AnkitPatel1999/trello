@@ -97,6 +97,10 @@ const authSlice = createSlice({
       .addCase(verifyOtpThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         if (action.payload.success && action.payload.user && action.payload.token) {
+          // Store auth data in localStorage
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+          localStorage.setItem('auth_token', action.payload.token);
+          
           state.user = action.payload.user;
           state.isAuthenticated = true;
           state.otpSent = false;

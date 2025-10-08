@@ -68,7 +68,10 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
 
     const result = await verifyOtp(email, otpString);
     if (result.success) {
-      onSuccess();
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        onSuccess();
+      }, 100);
     }
   };
 

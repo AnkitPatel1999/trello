@@ -51,7 +51,7 @@ const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               className="auth-input"
-              disabled={isLoading}
+              disabled={isSubmitting}
               autoFocus
             />
           </div>
