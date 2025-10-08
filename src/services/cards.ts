@@ -13,7 +13,7 @@ function loadInitialCards(): Card[] {
   return [
     {
       id: crypto.randomUUID(),
-      title: 'Task #1',
+      title: 'Task 1',
       description: 'Add buttons to UI, connect APIs, deploy to Azure',
       status: Status.Proposed,
     },

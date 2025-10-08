@@ -21,8 +21,8 @@ const Board = () => {
     dispatch(hydrateIfEmpty());
   }, [dispatch]);
 
-  const handleAdd = (title: string, status: Status) => {
-    dispatch(addCard({ title, status }));
+  const handleAdd = (title: string, status: Status, subtitles?: string[]) => {
+    dispatch(addCard({ title, status, subtitles }));
   };
 
   const handleMove = (id: string, to: Status) => {
@@ -60,7 +60,7 @@ const Board = () => {
                   color={cfg.badgeColor}
                   cards={cards.filter((c: Card) => c.status === cfg.key)}
                   allStatuses={ALL_STATUSES}
-                  onAdd={(title) => handleAdd(title, cfg.key)}
+                  onAdd={(title, subtitles) => handleAdd(title, cfg.key, subtitles)}
                   onMove={handleMove}
                 />
               ))}

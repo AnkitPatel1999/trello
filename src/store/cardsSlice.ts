@@ -36,19 +36,25 @@ const cardsSlice = createSlice({
         state.cards = [
           {
             id: crypto.randomUUID(),
-            title: 'Task #1',
+            title: 'Task 1',
             description: 'Add buttons to UI, connect APIs, deploy to Azure',
+            subtitles: [
+              'Add buttons to UI',
+              'Connect APIs to UI',
+              'Deploy to Azure'
+            ],
             status: Status.Proposed,
           },
         ];
         save(state.cards);
       }
     },
-    addCard(state, action: PayloadAction<{ title: string; status: Status; description?: string }>) {
+    addCard(state, action: PayloadAction<{ title: string; status: Status; description?: string; subtitles?: string[] }>) {
       const card: Card = {
         id: crypto.randomUUID(),
         title: action.payload.title,
         description: action.payload.description ?? '',
+        subtitles: action.payload.subtitles ?? [],
         status: action.payload.status,
       };
       state.cards.unshift(card);

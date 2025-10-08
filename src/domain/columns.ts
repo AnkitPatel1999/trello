@@ -11,8 +11,6 @@ export const COLUMNS: ColumnConfig[] = [
   { key: Status.Todo, title: 'Todo', badgeColor: 'var(--blue-500, #3b82f6)' },
   { key: Status.InProgress, title: 'In Progress', badgeColor: 'var(--cyan-500, #06b6d4)' },
   { key: Status.Done, title: 'Done', badgeColor: 'var(--green-500, #22c55e)' },
-  { key: Status.Done, title: 'Done', badgeColor: 'var(--green-500, #22c55e)' },
-  { key: Status.Done, title: 'Done', badgeColor: 'var(--green-500, #22c55e)' },
   { key: Status.Deployed, title: 'Deployed', badgeColor: 'var(--zinc-400, #a1a1aa)' },
 ];
 
