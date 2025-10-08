@@ -28,14 +28,40 @@ export const verifyOtpThunk = createAsyncThunk(
   }
 );
 
-const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-  otpSent: false,
-  email: null,
+// Initialize state from localStorage if available
+const getInitialAuthState = (): AuthState => {
+  try {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('auth_token');
+    
+    if (storedUser && storedToken) {
+      const userData = JSON.parse(storedUser);
+      return {
+        user: userData,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        otpSent: false,
+        email: null,
+      };
+    }
+  } catch (error) {
+    console.error('Error parsing stored auth data:', error);
+    localStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+  }
+  
+  return {
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+    error: null,
+    otpSent: false,
+    email: null,
+  };
 };
+
+const initialState: AuthState = getInitialAuthState();
 
 const authSlice = createSlice({
   name: 'auth',
