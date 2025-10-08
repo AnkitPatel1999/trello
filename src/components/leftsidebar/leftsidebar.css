@@ -104,6 +104,12 @@
     color: #374151;
 }
 
+.nested-item.active {
+    background-color: #e0f2fe;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 /* Curved horizontal line */
 .nested-item::before {
     content: '';

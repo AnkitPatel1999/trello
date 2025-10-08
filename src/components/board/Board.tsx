@@ -6,6 +6,7 @@ import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import { moveCard as moveCardAction, hydrateIfEmpty } from '../../store/cardsSlice';
+import { hydrateIfEmpty as hydrateProjectsIfEmpty } from '../../store/projectsSlice';
 import type { RootState } from '../../store';
 import './board.css';
 
@@ -22,6 +23,7 @@ const Board = () => {
 
   useEffect(() => {
     dispatch(hydrateIfEmpty());
+    dispatch(hydrateProjectsIfEmpty());
   }, [dispatch]);
 
   const handleOpenModal = (status: Status) => {

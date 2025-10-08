@@ -1,10 +1,12 @@
-export enum Status {
-  Proposed = 'proposed',
-  Todo = 'todo',
-  InProgress = 'inprogress',
-  Done = 'done',
-  Deployed = 'deployed',
-}
+export const Status = {
+  Proposed: 'proposed',
+  Todo: 'todo',
+  InProgress: 'inprogress',
+  Done: 'done',
+  Deployed: 'deployed',
+} as const;
+
+export type Status = typeof Status[keyof typeof Status];
 
 export const ALL_STATUSES: Status[] = [
   Status.Proposed,
