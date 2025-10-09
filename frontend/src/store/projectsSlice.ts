@@ -1,3 +1,4 @@
+// frontend/src/store/projectsSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Project, CreateProjectRequest } from '../domain/project';
@@ -5,90 +6,35 @@ import type { Project, CreateProjectRequest } from '../domain/project';
 type ProjectsState = {
   projects: Project[];
   activeProjectId: string | null;
+  loading: boolean;
+  error: string | null;
 };
 
-const STORAGE_KEY = 'trello.projects';
-const ACTIVE_PROJECT_KEY = 'trello.activeProject';
-
-function loadProjects(): Project[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Project[];
-  } catch (_err) {}
-  return [];
-}
-
-function saveProjects(projects: Project[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-  } catch (_err) {}
-}
-
-function loadActiveProjectId(): string | null {
-  try {
-    return localStorage.getItem(ACTIVE_PROJECT_KEY);
-  } catch (_err) {}
-  return null;
-}
-
-function saveActiveProjectId(projectId: string | null) {
-  try {
-    if (projectId) {
-      localStorage.setItem(ACTIVE_PROJECT_KEY, projectId);
-    } else {
-      localStorage.removeItem(ACTIVE_PROJECT_KEY);
-    }
-  } catch (_err) {}
-}
-
 const initialState: ProjectsState = {
-  projects: loadProjects(),
-  activeProjectId: loadActiveProjectId(),
+  projects: [],
+  activeProjectId: null,
+  loading: false,
+  error: null,
 };
 
 const projectsSlice = createSlice({
   name: 'projects',
   initialState,
   reducers: {
-    hydrateIfEmpty(state) {
-      if (state.projects.length === 0) {
-        const defaultProject: Project = {
-          id: 'default-project-id', // Fixed ID for consistency
-          name: 'Default Project',
-          description: 'Your first project',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isActive: true,
-        };
-        state.projects = [defaultProject];
-        state.activeProjectId = defaultProject.id;
-        saveProjects(state.projects);
-        saveActiveProjectId(state.activeProjectId);
-      }
-    },
-    createProject(state, action: PayloadAction<CreateProjectRequest>) {
-      const newProject: Project = {
-        id: crypto.randomUUID(),
-        name: action.payload.name,
-        description: action.payload.description,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isActive: true,
-      };
-      state.projects.push(newProject);
-      state.activeProjectId = newProject.id;
-      saveProjects(state.projects);
-      saveActiveProjectId(state.activeProjectId);
+    setProjects(state, action: PayloadAction<Project[]>) {
+      state.projects = action.payload;
     },
     setActiveProject(state, action: PayloadAction<string>) {
       state.activeProjectId = action.payload;
-      saveActiveProjectId(state.activeProjectId);
+    },
+    addProject(state, action: PayloadAction<Project>) {
+      state.projects.push(action.payload);
+      state.activeProjectId = action.payload.id;
     },
     updateProject(state, action: PayloadAction<{ id: string; updates: Partial<Project> }>) {
       const project = state.projects.find(p => p.id === action.payload.id);
       if (project) {
         Object.assign(project, action.payload.updates, { updatedAt: new Date().toISOString() });
-        saveProjects(state.projects);
       }
     },
     deleteProject(state, action: PayloadAction<string>) {
@@ -98,19 +44,25 @@ const projectsSlice = createSlice({
         if (state.activeProjectId === action.payload) {
           state.activeProjectId = state.projects.length > 0 ? state.projects[0].id : null;
         }
-        saveProjects(state.projects);
-        saveActiveProjectId(state.activeProjectId);
       }
+    },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.loading = action.payload;
+    },
+    setError(state, action: PayloadAction<string | null>) {
+      state.error = action.payload;
     },
   },
 });
 
 export const { 
-  createProject, 
+  setProjects,
   setActiveProject, 
+  addProject,
   updateProject, 
-  deleteProject, 
-  hydrateIfEmpty 
+  deleteProject,
+  setLoading,
+  setError
 } = projectsSlice.actions;
 
 export default projectsSlice.reducer;

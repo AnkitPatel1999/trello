@@ -1,34 +1,38 @@
-import { useEffect, useState } from 'react';
+// frontend/src/components/board/Board.tsx
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
 import TaskModal from '../taskmodal/TaskModal';
 import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
-import { moveCard as moveCardAction, hydrateIfEmpty } from '../../store/cardsSlice';
-import { hydrateIfEmpty as hydrateProjectsIfEmpty } from '../../store/projectsSlice';
+import { useTasks } from '../../hooks/useTasks';
 import type { RootState } from '../../store';
 import './board.css';
 
 import tabler_icon2 from "../../assets/icons/tabler_icon2.svg"
 import right_icon from "../../assets/icons/right_icon.svg"
 
-
 const Board = () => {
   const dispatch = useDispatch();
-  const allCards = useSelector((state: RootState) => state.cards.cards as Card[]);
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStatus, setModalStatus] = useState<Status>(Status.Proposed);
+  const hasFetchedRef = useRef(false);
+  
+  console.log('activeProjectId', activeProjectId);
+  const { tasks, loading, error, fetchTasks, updateTask } = useTasks();
 
-  // Filter cards by active project
-  const cards = allCards.filter(card => card.projectId === activeProjectId);
+  // Filter tasks by active project
+  const cards = tasks.filter(task => task.projectId === activeProjectId);
   const taskCount = cards.length;
 
   useEffect(() => {
-    dispatch(hydrateIfEmpty());
-    dispatch(hydrateProjectsIfEmpty());
-  }, [dispatch]);
+    if (activeProjectId && !hasFetchedRef.current) {
+      fetchTasks();
+      hasFetchedRef.current = true;
+    }
+  }, [activeProjectId, fetchTasks]);
 
   const handleOpenModal = (status: Status) => {
     setModalStatus(status);
@@ -39,14 +43,25 @@ const Board = () => {
     setIsModalOpen(false);
   };
 
-  const handleMove = (id: string, to: Status) => {
-    dispatch(moveCardAction({ id, to }));
+  const handleMove = async (id: string, to: Status) => {
+    try {
+      await updateTask(id, { status: to });
+    } catch (err) {
+      console.error('Failed to move task:', err);
+    }
   };
+
+  if (loading) {
+    return <div className="board-container">Loading tasks...</div>;
+  }
+
+  if (error) {
+    return <div className="board-container">Error: {error}</div>;
+  }
 
   return (
     <>
       <div className='board-container'>
-        
         <div className="board-header">
           <div className='board-header-left'>
             <img src={tabler_icon2} alt="" />
@@ -90,6 +105,6 @@ const Board = () => {
       />
     </>
   );
-}
+};
 
-export default Board
+export default Board;

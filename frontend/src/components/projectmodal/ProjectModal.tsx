@@ -1,43 +1,47 @@
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { createProject } from '../../store/projectsSlice';
+import { useProjects } from '../../hooks/useProjects';
 import './projectmodal.css';
 
 interface ProjectModalProps {
     open: boolean;
     onClose: () => void;
+    onProjectCreated?: () => void; // Add callback prop
 }
 
-const ProjectModal = ({ open, onClose }: ProjectModalProps) => {
+const ProjectModal = ({ open, onClose, onProjectCreated }: ProjectModalProps) => {
     if (!open) return null;
 
     const [projectName, setProjectName] = useState<string>('');
     const [projectDescription, setProjectDescription] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
-    const dispatch = useDispatch();
+    const { createProject, loading } = useProjects();
 
     // Reset form when modal closes
     useEffect(() => {
         if (!open) {
             setProjectName('');
             setProjectDescription('');
+            setError('');
         }
     }, [open]);
 
-    const handleCreateProject = () => {
+    const handleCreateProject = async () => {
         if (projectName.trim()) {
-            setIsLoading(true);
-            
-            // Simulate API call delay
-            setTimeout(() => {
-                dispatch(createProject({ 
-                    name: projectName.trim(), 
-                    description: projectDescription.trim() || undefined 
-                }));
-                setIsLoading(false);
+            setError('');
+            try {
+                await createProject({
+                    name: projectName.trim(),
+                    description: projectDescription.trim() || undefined
+                });
                 onClose();
-            }, 500);
+                // Call the callback to refresh the sidebar
+                if (onProjectCreated) {
+                    onProjectCreated();
+                }
+            } catch (err: any) {
+                setError(err.message || 'Failed to create project');
+            }
         }
     };
 
@@ -53,6 +57,12 @@ const ProjectModal = ({ open, onClose }: ProjectModalProps) => {
                 </div>
                 
                 <div className="project-modal-content">
+                    {error && (
+                        <div className="project-modal-error">
+                            {error}
+                        </div>
+                    )}
+
                     <div className="project-modal-section">
                         <label className="project-modal-label">Project Name</label>
                         <input 
@@ -61,6 +71,7 @@ const ProjectModal = ({ open, onClose }: ProjectModalProps) => {
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             autoFocus
+                            disabled={loading}
                         />
                     </div>
 
@@ -72,6 +83,7 @@ const ProjectModal = ({ open, onClose }: ProjectModalProps) => {
                             value={projectDescription}
                             onChange={(e) => setProjectDescription(e.target.value)}
                             rows={3}
+                            disabled={loading}
                         />
                     </div>
                 </div>
@@ -80,9 +92,9 @@ const ProjectModal = ({ open, onClose }: ProjectModalProps) => {
                     <button 
                         onClick={handleCreateProject} 
                         className={canCreateProject ? 'project-modal-create-btn' : 'project-modal-create-btn project-modal-create-btn-disabled'} 
-                        disabled={!canCreateProject || isLoading}
+                        disabled={!canCreateProject || loading}
                     >
-                        {isLoading ? 'Creating...' : 'Create Project'}
+                        {loading ? 'Creating...' : 'Create Project'}
                     </button>
                 </div>
             </div>

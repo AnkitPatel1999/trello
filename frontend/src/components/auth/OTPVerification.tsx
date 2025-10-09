@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useAuthOperations } from '../../hooks/useAuthOperations';
 import type { RootState } from '../../store';
 import './auth.css';
@@ -12,6 +13,7 @@ interface OTPVerificationProps {
 const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
   const { error, email } = useSelector((state: RootState) => state.auth);
   const { verifyOtp, sendOtp, isSubmitting } = useAuthOperations();
+  const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -67,16 +69,14 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
     }
 
     const result = await verifyOtp(email, otpString);
+    
     if (result.success) {
-      // Small delay to ensure state is updated
-      setTimeout(() => {
-        onSuccess();
-      }, 100);
+      // Simple redirect to dashboard
+      navigate('/dashboard', { replace: true });
     }
   };
 
   const handleBack = () => {
-    // Reset OTP state is handled by the hook
     onBack();
   };
 

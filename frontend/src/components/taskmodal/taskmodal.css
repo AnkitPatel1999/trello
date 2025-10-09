@@ -227,6 +227,39 @@
     opacity: 0.6;
 }
 
+
+.task-modal-error {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.task-modal-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.task-modal-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.task-modal-textarea:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+
 /* Responsive design */
 @media screen and (max-width: 600px) {
     .task-modal {
@@ -269,3 +302,5 @@
         margin-bottom: 16px;
     }
 }
+
+

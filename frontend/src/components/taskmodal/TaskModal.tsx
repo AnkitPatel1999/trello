@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addCard } from '../../store/cardsSlice';
+import { useSelector } from 'react-redux';
+import { useTasks } from '../../hooks/useTasks';
 import { Status } from '../../domain/status';
 import type { RootState } from '../../store';
 import './taskmodal.css';
@@ -15,19 +15,22 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
     if (!open) return null;
 
     const [taskTitle, setTaskTitle] = useState<string>('');
+    const [taskDescription, setTaskDescription] = useState<string>('');
     const [subTaskInput, setSubTaskInput] = useState<string>('');
     const [subTasks, setSubTasks] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
-    const dispatch = useDispatch();
+    const { createTask, loading } = useTasks();
     const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
 
     // Reset form when modal closes
     useEffect(() => {
         if (!open) {
             setTaskTitle('');
+            setTaskDescription('');
             setSubTaskInput('');
             setSubTasks([]);
+            setError('');
         }
     }, [open]);
 
@@ -49,21 +52,21 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
         }
     };
 
-    const handleCreateTask = () => {
+    const handleCreateTask = async () => {
         if (taskTitle.trim()) {
-            setIsLoading(true);
-            
-            // Simulate API call delay
-            setTimeout(() => {
-                dispatch(addCard({ 
-                    title: taskTitle.trim(), 
-                    status, 
-                    subtitles: subTasks.length > 0 ? subTasks : undefined,
-                    projectId: activeProjectId || 'default-project-id'
-                }));
-                setIsLoading(false);
+            setError('');
+            try {
+                await createTask({
+                    title: taskTitle.trim(),
+                    description: taskDescription.trim() || '',
+                    status,
+                    projectId: activeProjectId || 'default-project-id',
+                    subtitles: subTasks.length > 0 ? subTasks : []
+                });
                 onClose();
-            }, 500);
+            } catch (err: any) {
+                setError(err.message || 'Failed to create task');
+            }
         }
     };
 
@@ -79,6 +82,12 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                 </div>
                 
                 <div className="task-modal-content">
+                    {error && (
+                        <div className="task-modal-error">
+                            {error}
+                        </div>
+                    )}
+
                     <div className="task-modal-section">
                         <label className="task-modal-label">Task Title</label>
                         <input 
@@ -87,6 +96,19 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                             value={taskTitle}
                             onChange={(e) => setTaskTitle(e.target.value)}
                             autoFocus
+                            disabled={loading}
+                        />
+                    </div>
+
+                    <div className="task-modal-section">
+                        <label className="task-modal-label">Description (Optional)</label>
+                        <textarea 
+                            className="task-modal-textarea" 
+                            placeholder="Enter task description..." 
+                            value={taskDescription}
+                            onChange={(e) => setTaskDescription(e.target.value)}
+                            rows={3}
+                            disabled={loading}
                         />
                     </div>
 
@@ -99,11 +121,12 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                                 value={subTaskInput}
                                 onChange={(e) => setSubTaskInput(e.target.value)}
                                 onKeyPress={handleKeyPress}
+                                disabled={loading}
                             />
                             <button 
                                 className="task-modal-add-btn"
                                 onClick={handleAddSubTask}
-                                disabled={!subTaskInput.trim()}
+                                disabled={!subTaskInput.trim() || loading}
                             >
                                 Add
                             </button>
@@ -117,6 +140,7 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                                         <button 
                                             className="task-modal-remove-btn"
                                             onClick={() => handleRemoveSubTask(index)}
+                                            disabled={loading}
                                         >
                                             ×
                                         </button>
@@ -131,9 +155,9 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                     <button 
                         onClick={handleCreateTask} 
                         className={canCreateTask ? 'task-modal-create-btn' : 'task-modal-create-btn task-modal-create-btn-disabled'} 
-                        disabled={!canCreateTask || isLoading}
+                        disabled={!canCreateTask || loading}
                     >
-                        {isLoading ? 'Creating...' : 'Create Task'}
+                        {loading ? 'Creating...' : 'Create Task'}
                     </button>
                 </div>
             </div>

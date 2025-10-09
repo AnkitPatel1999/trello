@@ -17,10 +17,12 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
   };
 
   const handleBackToEmail = () => {
+    console.log('Back to email');
     setShowOtp(false);
   };
 
   const handleAuthSuccess = () => {
+    console.log('Auth success');
     onAuthSuccess();
   };
 

@@ -6,8 +6,11 @@ import "./header.css";
 import tabler_icon from '../../assets/icons/tabler_icon.svg';
 import plus from '../../assets/icons/plus.svg';
 
+interface HeaderProps {
+    onProjectCreated?: () => void;
+}
 
-export default function Header() {
+export default function Header({ onProjectCreated }: HeaderProps) {
     const { user, logout } = useAuth();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
@@ -59,6 +62,7 @@ export default function Header() {
             <ProjectModal 
                 open={isProjectModalOpen}
                 onClose={handleCloseProjectModal}
+                onProjectCreated={onProjectCreated}
             />
         </>
     )
