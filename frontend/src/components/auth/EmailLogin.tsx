@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useAuthOperations } from '../../hooks/useAuthOperations';
+import { useSelector, useDispatch } from 'react-redux';
+import { sendOtp } from '../../store/authSlice';
 import type { RootState } from '../../store';
 import './auth.css';
 
@@ -9,8 +9,8 @@ interface EmailLoginProps {
 }
 
 const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
-  const { error } = useSelector((state: RootState) => state.auth);
-  const { sendOtp, isSubmitting } = useAuthOperations();
+  const dispatch = useDispatch();
+  const { error, isLoading } = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,9 +20,13 @@ const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
       return;
     }
 
-    const result = await sendOtp(email.trim());
-    if (result.success) {
-      onOtpSent();
+    try {
+      const result = await dispatch(sendOtp(email.trim()));
+      if (sendOtp.fulfilled.match(result)) {
+        onOtpSent();
+      }
+    } catch (error) {
+      console.error('Send OTP failed:', error);
     }
   };
 
@@ -51,7 +55,7 @@ const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               className="auth-input"
-              disabled={isSubmitting}
+              disabled={isLoading}
               autoFocus
             />
           </div>
@@ -64,10 +68,10 @@ const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
 
           <button
             type="submit"
-            disabled={!isValidEmail(email) || isSubmitting}
+            disabled={!isValidEmail(email) || isLoading}
             className="auth-button"
           >
-            {isSubmitting ? 'Sending...' : 'Send OTP'}
+            {isLoading ? 'Sending...' : 'Send OTP'}
           </button>
         </form>
 

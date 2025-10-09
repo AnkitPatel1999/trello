@@ -1,5 +1,5 @@
 // frontend/src/store/cardsSlice.ts
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Card } from '../domain/types';
 
@@ -41,6 +41,19 @@ const cardsSlice = createSlice({
     },
   },
 });
+
+// Selectors
+export const selectCards = (state: { cards: CardsState }) => state.cards.cards;
+export const selectCardsByProject = createSelector(
+  [selectCards, (_: any, projectId: string) => projectId],
+  (cards, projectId) => cards.filter(card => card.projectId === projectId)
+);
+export const selectCardsByStatus = createSelector(
+  [selectCards, (_: any, status: string) => status],
+  (cards, status) => cards.filter(card => card.status === status)
+);
+export const selectCardsLoading = (state: { cards: CardsState }) => state.cards.loading;
+export const selectCardsError = (state: { cards: CardsState }) => state.cards.error;
 
 export const { setCards, addCard, updateCard, deleteCard, setLoading, setError } = cardsSlice.actions;
 export default cardsSlice.reducer;

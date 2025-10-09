@@ -1,5 +1,5 @@
 // frontend/src/components/leftsidebar/LeftSidebar.tsx
-import { useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveProject } from '../../store/projectsSlice';
 import { useProjects } from '../../hooks/useProjects';
@@ -11,24 +11,16 @@ import search from "../../assets/icons/search.svg"
 import settings from "../../assets/icons/settings.svg"
 import folder from "../../assets/icons/folder.svg"
 
-interface LeftSidebarProps {
-    refreshTrigger?: number;
-}
-
-export default function LeftSidebar({ refreshTrigger }: LeftSidebarProps) {
+const LeftSidebar = memo(() => {
     const dispatch = useDispatch();
-    const projects = useSelector((state: RootState) => state.projects.projects);
     const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
     
-    const { projects: apiProjects, loading, error } = useProjects();
+    const { projects, loading, error } = useProjects();
 
     // Memoize project click handler
     const handleProjectClick = useCallback((projectId: string) => {
         dispatch(setActiveProject(projectId));
     }, [dispatch]);
-
-    // Use API projects if available, fallback to Redux projects
-    const displayProjects = apiProjects.length > 0 ? apiProjects : projects;
 
     return (
         <div className="left-sidebar">
@@ -62,7 +54,7 @@ export default function LeftSidebar({ refreshTrigger }: LeftSidebarProps) {
                         <ul className="nested-list">
                             {loading && <li className="nested-item">Loading projects...</li>}
                             {error && <li className="nested-item error">Error: {error}</li>}
-                            {displayProjects.map(project => (
+                            {projects.map(project => (
                                 <li 
                                     key={project.id} 
                                     className={`nested-item ${activeProjectId === project.id ? 'active' : ''}`}
@@ -77,4 +69,8 @@ export default function LeftSidebar({ refreshTrigger }: LeftSidebarProps) {
             </div>
         </div>
     );
-}
+});
+
+LeftSidebar.displayName = 'LeftSidebar';
+
+export default LeftSidebar;

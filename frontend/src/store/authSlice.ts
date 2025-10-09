@@ -3,41 +3,38 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, User } from '../domain/auth';
 import { authService } from '../services/auth';
 
-// Async thunks for better error handling
-export const sendOtpThunk = createAsyncThunk(
+// Async thunks
+export const sendOtp = createAsyncThunk(
   'auth/sendOtp',
   async (email: string, { rejectWithValue }) => {
     try {
-      const response = await authService.sendOtp(email);
-      return response;
+      return await authService.sendOtp(email);
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to send OTP');
     }
   }
 );
 
-export const verifyOtpThunk = createAsyncThunk(
+export const verifyOtp = createAsyncThunk(
   'auth/verifyOtp',
   async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
     try {
-      const response = await authService.verifyOtp(email, otp);
-      return response;
+      return await authService.verifyOtp(email, otp);
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to verify OTP');
     }
   }
 );
 
-// Initialize state from localStorage if available
+// Initialize state from localStorage
 const getInitialAuthState = (): AuthState => {
   try {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('auth_token');
     
     if (storedUser && storedToken) {
-      const userData = JSON.parse(storedUser);
       return {
-        user: userData,
+        user: JSON.parse(storedUser),
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -46,7 +43,6 @@ const getInitialAuthState = (): AuthState => {
       };
     }
   } catch (error) {
-    console.error('Error parsing stored auth data:', error);
     localStorage.removeItem('user');
     localStorage.removeItem('auth_token');
   }
@@ -67,12 +63,6 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
-    },
-    setError(state, action: PayloadAction<string | null>) {
-      state.error = action.payload;
-    },
     setUser(state, action: PayloadAction<User>) {
       state.user = action.payload;
       state.isAuthenticated = true;
@@ -100,30 +90,27 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Send OTP
-      .addCase(sendOtpThunk.pending, (state) => {
+      .addCase(sendOtp.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(sendOtpThunk.fulfilled, (state, action) => {
+      .addCase(sendOtp.fulfilled, (state, action) => {
         state.isLoading = false;
         state.otpSent = true;
         state.email = action.meta.arg;
         state.error = null;
       })
-      .addCase(sendOtpThunk.rejected, (state, action) => {
+      .addCase(sendOtp.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      // Verify OTP
-      .addCase(verifyOtpThunk.pending, (state) => {
+      .addCase(verifyOtp.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(verifyOtpThunk.fulfilled, (state, action) => {
+      .addCase(verifyOtp.fulfilled, (state, action) => {
         state.isLoading = false;
         if (action.payload.success && action.payload.user && action.payload.token) {
-          // Store auth data in localStorage
           localStorage.setItem('user', JSON.stringify(action.payload.user));
           localStorage.setItem('auth_token', action.payload.token);
           
@@ -136,33 +123,12 @@ const authSlice = createSlice({
           state.error = action.payload.message || 'Verification failed';
         }
       })
-      .addCase(verifyOtpThunk.rejected, (state, action) => {
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
   },
 });
 
-export const {
-  setLoading,
-  setError,
-  setUser,
-  logout,
-  clearError,
-  resetOtpState,
-} = authSlice.actions;
-
-// Export async thunks
-export { sendOtpThunk as sendOtp, verifyOtpThunk as verifyOtp };
-
-export const logoutUser = () => async (dispatch: any) => {
-  try {
-    await authService.logout();
-  } catch (error) {
-    console.error('Logout error:', error);
-  } finally {
-    dispatch(logout());
-  }
-};
-
+export const { setUser, logout, clearError, resetOtpState } = authSlice.actions;
 export default authSlice.reducer;

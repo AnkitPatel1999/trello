@@ -8,12 +8,13 @@ export const Status = {
 
 export type Status = typeof Status[keyof typeof Status];
 
-export const ALL_STATUSES: Status[] = [
+// Memoize the array to prevent recreation on every import
+export const ALL_STATUSES: readonly Status[] = Object.freeze([
   Status.Proposed,
   Status.Todo,
   Status.InProgress,
   Status.Done,
   Status.Deployed,
-];
+]);
 
 

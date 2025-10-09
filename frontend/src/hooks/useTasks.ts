@@ -1,7 +1,7 @@
 // frontend/src/hooks/useTasks.ts
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { taskService } from '../services/tasks';
+import { apiService } from '../services/api';
 import type { Card } from '../domain/types';
 import { setCards, addCard, updateCard, deleteCard, setLoading, setError } from '../store/cardsSlice';
 import type { RootState } from '../store';
@@ -16,7 +16,7 @@ export const useTasks = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      const data = await taskService.getTasks();
+      const data = await apiService.getTasks();
       dispatch(setCards(data));
     } catch (err: any) {
       dispatch(setError(err.message));
@@ -29,7 +29,7 @@ export const useTasks = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      const newTask = await taskService.createTask(task);
+      const newTask = await apiService.createTask(task);
       dispatch(addCard(newTask));
       return newTask;
     } catch (err: any) {
@@ -44,7 +44,7 @@ export const useTasks = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      const updatedTask = await taskService.updateTask(id, task);
+      const updatedTask = await apiService.updateTask(id, task);
       dispatch(updateCard(updatedTask));
       return updatedTask;
     } catch (err: any) {
@@ -59,7 +59,7 @@ export const useTasks = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      await taskService.deleteTask(id);
+      await apiService.deleteTask(id);
       dispatch(deleteCard(id));
     } catch (err: any) {
       dispatch(setError(err.message));
@@ -68,6 +68,11 @@ export const useTasks = () => {
       dispatch(setLoading(false));
     }
   }, [dispatch]);
+
+  // Fetch tasks on mount only
+  useEffect(() => {
+    fetchTasks();
+  }, []); // Empty dependency array to run only once
 
   return {
     tasks: cards,

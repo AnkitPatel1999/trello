@@ -17,6 +17,10 @@ class ApiService {
       },
     });
 
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       (config) => {
@@ -26,9 +30,7 @@ class ApiService {
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
     // Response interceptor for error handling
@@ -36,7 +38,6 @@ class ApiService {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Handle unauthorized access
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
           window.location.href = '/login';
@@ -117,4 +118,5 @@ class ApiService {
   }
 }
 
+// Export singleton instance
 export const apiService = new ApiService();

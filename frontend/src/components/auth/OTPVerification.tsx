@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useAuthOperations } from '../../hooks/useAuthOperations';
+import { sendOtp, verifyOtp } from '../../store/authSlice';
 import type { RootState } from '../../store';
 import './auth.css';
 
@@ -11,8 +11,8 @@ interface OTPVerificationProps {
 }
 
 const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
-  const { error, email } = useSelector((state: RootState) => state.auth);
-  const { verifyOtp, sendOtp, isSubmitting } = useAuthOperations();
+  const dispatch = useDispatch();
+  const { error, email, isLoading } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -68,11 +68,15 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
       return;
     }
 
-    const result = await verifyOtp(email, otpString);
-    
-    if (result.success) {
-      // Simple redirect to dashboard
-      navigate('/dashboard', { replace: true });
+    try {
+      const result = await dispatch(verifyOtp({ email, otp: otpString }));
+      
+      if (verifyOtp.fulfilled.match(result)) {
+        // Simple redirect to dashboard
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (error) {
+      console.error('OTP verification failed:', error);
     }
   };
 
@@ -82,7 +86,11 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
 
   const handleResend = async () => {
     if (!email) return;
-    await sendOtp(email);
+    try {
+      await dispatch(sendOtp(email));
+    } catch (error) {
+      console.error('Resend OTP failed:', error);
+    }
   };
 
   return (
@@ -111,7 +119,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={handlePaste}
                   className="otp-input"
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                 />
               ))}
             </div>
@@ -125,10 +133,10 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
 
           <button
             type="submit"
-            disabled={otp.join('').length !== 6 || isSubmitting}
+            disabled={otp.join('').length !== 6 || isLoading}
             className="auth-button"
           >
-            {isSubmitting ? 'Verifying...' : 'Verify OTP'}
+            {isLoading ? 'Verifying...' : 'Verify OTP'}
           </button>
         </form>
 
@@ -139,7 +147,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
               type="button"
               onClick={handleResend}
               className="auth-link-button"
-              disabled={isSubmitting}
+              disabled={isLoading}
             >
               Resend
             </button>
@@ -148,7 +156,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
             type="button"
             onClick={handleBack}
             className="auth-back-button"
-            disabled={isSubmitting}
+            disabled={isLoading}
           >
             ← Back to Email
           </button>

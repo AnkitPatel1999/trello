@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import type { Card } from '../../domain/types';
 import { Status } from '../../domain/status';
 import './task.css';
@@ -10,16 +10,21 @@ type TaskProps = {
 };
 
 const Task = memo<TaskProps>(({ card, allStatuses, onMove }) => {
-  // Generate initials from title for the icon
-  const getInitials = (title: string) => {
-    return title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
-  };
+  // Memoize initials calculation
+  const initials = useMemo(() => {
+    return card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  }, [card.title]);
+
+  // Memoize move handler
+  const handleMove = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    onMove(card.id, e.target.value as Status);
+  }, [card.id, onMove]);
 
   return (
     <div className="task-card">
       <div className="task-header">
         <div className="task-icon">
-          {getInitials(card.title)}
+          {initials}
         </div>
         <div className="task-title">{card.title}</div>
       </div>
@@ -36,7 +41,7 @@ const Task = memo<TaskProps>(({ card, allStatuses, onMove }) => {
       
       <div className="task-move">
         <label>Move to</label>
-        <select value={card.status} onChange={(e) => onMove(card.id, e.target.value as Status)}>
+        <select value={card.status} onChange={handleMove}>
           {allStatuses.map(s => (
             <option key={s} value={s}>{s}</option>
           ))}

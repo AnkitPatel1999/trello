@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo, useCallback } from 'react';
 import { useProjects } from '../../hooks/useProjects';
 import './projectmodal.css';
 
 interface ProjectModalProps {
     open: boolean;
     onClose: () => void;
-    onProjectCreated?: () => void; // Add callback prop
 }
 
-const ProjectModal = ({ open, onClose, onProjectCreated }: ProjectModalProps) => {
+const ProjectModal = memo(({ open, onClose }: ProjectModalProps) => {
     if (!open) return null;
 
     const [projectName, setProjectName] = useState<string>('');
@@ -26,7 +25,7 @@ const ProjectModal = ({ open, onClose, onProjectCreated }: ProjectModalProps) =>
         }
     }, [open]);
 
-    const handleCreateProject = async () => {
+    const handleCreateProject = useCallback(async () => {
         if (projectName.trim()) {
             setError('');
             try {
@@ -35,15 +34,11 @@ const ProjectModal = ({ open, onClose, onProjectCreated }: ProjectModalProps) =>
                     description: projectDescription.trim() || undefined
                 });
                 onClose();
-                // Call the callback to refresh the sidebar
-                if (onProjectCreated) {
-                    onProjectCreated();
-                }
             } catch (err: any) {
                 setError(err.message || 'Failed to create project');
             }
         }
-    };
+    }, [projectName, projectDescription, createProject, onClose]);
 
     const canCreateProject = projectName.trim().length > 0;
 
@@ -100,6 +95,8 @@ const ProjectModal = ({ open, onClose, onProjectCreated }: ProjectModalProps) =>
             </div>
         </>
     );
-};
+});
+
+ProjectModal.displayName = 'ProjectModal';
 
 export default ProjectModal;

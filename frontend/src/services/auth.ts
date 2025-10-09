@@ -3,46 +3,15 @@ import type { AuthResponse } from '../domain/auth';
 
 class AuthService {
   async sendOtp(email: string): Promise<AuthResponse> {
-    try {
-      return await apiService.sendOtp(email);
-    } catch (error: any) {
-      console.error('Send OTP error:', error);
-      throw new Error(error.response?.data?.message || 'Failed to send OTP');
-    }
+    return await apiService.sendOtp(email);
   }
 
   async verifyOtp(email: string, otp: string): Promise<AuthResponse> {
-    try {
-      const response = await apiService.verifyOtp(email, otp);
-      
-      // Transform the response to match expected structure
-      const transformedResponse: AuthResponse = {
-        success: response.success,
-        message: response.message,
-        user: response.data?.user,
-        token: response.data?.token
-      };
-      
-      // Store auth data if successful
-      if (transformedResponse.success && transformedResponse.token && transformedResponse.user) {
-        this.storeAuthData(transformedResponse.token, transformedResponse.user);
-      }
-      
-      return transformedResponse;
-    } catch (error: any) {
-      console.error('Verify OTP error:', error);
-      throw new Error(error.response?.data?.message || 'Invalid OTP');
-    }
+    return await apiService.verifyOtp(email, otp);
   }
 
   async logout(): Promise<void> {
-    try {
-      await apiService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      this.clearAuthData();
-    }
+    await apiService.logout();
   }
 
   getStoredToken(): string | null {

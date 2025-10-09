@@ -1,5 +1,5 @@
 // frontend/src/components/board/Board.tsx
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
 import { TaskModalWithSuspense } from '../lazy/LazyModals';
@@ -18,7 +18,7 @@ const Board = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStatus, setModalStatus] = useState<Status>(Status.Proposed);
   
-  const { tasks, loading, error, fetchTasks, updateTask } = useTasks();
+  const { tasks, loading, error, updateTask } = useTasks();
 
   // Memoize filtered cards to prevent unnecessary recalculations
   const cards = useMemo(() => 
@@ -37,12 +37,6 @@ const Board = () => {
     });
     return grouped;
   }, [cards]);
-
-  useEffect(() => {
-    if (activeProjectId) {
-      fetchTasks();
-    }
-  }, [activeProjectId, fetchTasks]);
 
   // Memoize modal handlers
   const handleOpenModal = useCallback((status: Status) => {

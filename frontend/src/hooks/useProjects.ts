@@ -1,7 +1,7 @@
 // frontend/src/hooks/useProjects.ts
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { projectService } from '../services/projects';
+import { apiService } from '../services/api';
 import type { Project, CreateProjectRequest } from '../domain/project';
 import { setProjects, setActiveProject, addProject, updateProject as updateProjectAction, deleteProject as deleteProjectAction, setLoading, setError } from '../store/projectsSlice';
 import type { RootState } from '../store';
@@ -17,7 +17,7 @@ export const useProjects = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      const data = await projectService.getProjects();
+      const data = await apiService.getProjects();
       dispatch(setProjects(data));
       
       // Set active project if none is selected
@@ -29,13 +29,13 @@ export const useProjects = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch, activeProjectId]);
+  }, [dispatch]); // Remove activeProjectId dependency to prevent infinite loop
 
   const createProject = useCallback(async (project: CreateProjectRequest) => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      const newProject = await projectService.createProject(project);
+      const newProject = await apiService.createProject(project);
       dispatch(addProject(newProject));
       return newProject;
     } catch (err: any) {
@@ -50,7 +50,7 @@ export const useProjects = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      const updatedProject = await projectService.updateProject(id, updates);
+      const updatedProject = await apiService.updateProject(id, updates);
       dispatch(updateProjectAction({ id, updates: updatedProject }));
       return updatedProject;
     } catch (err: any) {
@@ -65,7 +65,7 @@ export const useProjects = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-      await projectService.deleteProject(id);
+      await apiService.deleteProject(id);
       dispatch(deleteProjectAction(id));
     } catch (err: any) {
       dispatch(setError(err.message));
@@ -79,9 +79,10 @@ export const useProjects = () => {
     dispatch(setActiveProject(projectId));
   }, [dispatch]);
 
+  // Fetch projects on mount only
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+  }, []); // Empty dependency array to run only once
 
   return {
     projects,

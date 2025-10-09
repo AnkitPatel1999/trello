@@ -1,5 +1,5 @@
 // frontend/src/store/projectsSlice.ts
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Project, CreateProjectRequest } from '../domain/project';
 
@@ -54,6 +54,16 @@ const projectsSlice = createSlice({
     },
   },
 });
+
+// Selectors
+export const selectProjects = (state: { projects: ProjectsState }) => state.projects.projects;
+export const selectActiveProjectId = (state: { projects: ProjectsState }) => state.projects.activeProjectId;
+export const selectActiveProject = createSelector(
+  [selectProjects, selectActiveProjectId],
+  (projects, activeProjectId) => projects.find(p => p.id === activeProjectId) || null
+);
+export const selectProjectsLoading = (state: { projects: ProjectsState }) => state.projects.loading;
+export const selectProjectsError = (state: { projects: ProjectsState }) => state.projects.error;
 
 export const { 
   setProjects,
