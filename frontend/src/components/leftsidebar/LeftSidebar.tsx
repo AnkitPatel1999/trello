@@ -1,5 +1,5 @@
 // frontend/src/components/leftsidebar/LeftSidebar.tsx
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveProject } from '../../store/projectsSlice';
 import { useProjects } from '../../hooks/useProjects';
@@ -12,7 +12,7 @@ import settings from "../../assets/icons/settings.svg"
 import folder from "../../assets/icons/folder.svg"
 
 interface LeftSidebarProps {
-    refreshTrigger?: number; // Add refresh trigger prop
+    refreshTrigger?: number;
 }
 
 export default function LeftSidebar({ refreshTrigger }: LeftSidebarProps) {
@@ -20,8 +20,12 @@ export default function LeftSidebar({ refreshTrigger }: LeftSidebarProps) {
     const projects = useSelector((state: RootState) => state.projects.projects);
     const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
     
-    // Add useProjects hook to fetch from API
     const { projects: apiProjects, loading, error, fetchProjects } = useProjects();
+
+    // Memoize project click handler
+    const handleProjectClick = useCallback((projectId: string) => {
+        dispatch(setActiveProject(projectId));
+    }, [dispatch]);
 
     // Refresh projects when refreshTrigger changes
     useEffect(() => {
@@ -29,10 +33,6 @@ export default function LeftSidebar({ refreshTrigger }: LeftSidebarProps) {
             fetchProjects();
         }
     }, [refreshTrigger, fetchProjects]);
-
-    const handleProjectClick = (projectId: string) => {
-        dispatch(setActiveProject(projectId));
-    };
 
     // Use API projects if available, fallback to Redux projects
     const displayProjects = apiProjects.length > 0 ? apiProjects : projects;

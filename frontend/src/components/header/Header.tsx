@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import ProjectModal from '../projectmodal/ProjectModal';
+import { ProjectModalWithSuspense } from '../lazy/LazyModals';
 import "./header.css";
 
 import tabler_icon from '../../assets/icons/tabler_icon.svg';
@@ -14,17 +14,17 @@ export default function Header({ onProjectCreated }: HeaderProps) {
     const { user, logout } = useAuth();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
-    const handleCreateProject = () => {
+    const handleCreateProject = useCallback(() => {
         setIsProjectModalOpen(true);
-    };
+    }, []);
 
-    const handleCloseProjectModal = () => {
+    const handleCloseProjectModal = useCallback(() => {
         setIsProjectModalOpen(false);
-    };
+    }, []);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout();
-    };
+    }, [logout]);
 
     return (
         <>
@@ -33,7 +33,7 @@ export default function Header({ onProjectCreated }: HeaderProps) {
                     <div className='ae-d-flex ae-flex-1 ae-justify-space-between'>
                         <div className="ae-d-flex ae-align-center ae-gap-5">
                             <img src={tabler_icon} alt="tabler-icon" />
-                            <span>Page Title</span>
+                            <span>Dashboard</span>
                         </div>
                         <div className="ae-d-flex ae-align-center ae-gap-10">
                             <button 
@@ -59,7 +59,7 @@ export default function Header({ onProjectCreated }: HeaderProps) {
                 </div>
             </div>
 
-            <ProjectModal 
+            <ProjectModalWithSuspense 
                 open={isProjectModalOpen}
                 onClose={handleCloseProjectModal}
                 onProjectCreated={onProjectCreated}

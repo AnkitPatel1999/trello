@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Header from '../components/header/Header';
 import Board from '../components/board/Board';
 import LeftSidebar from '../components/leftsidebar/LeftSidebar';
@@ -6,9 +6,9 @@ import LeftSidebar from '../components/leftsidebar/LeftSidebar';
 const DashboardPage = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleProjectCreated = () => {
+  const handleProjectCreated = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
-  };
+  }, []);
 
   return (
     <div className='app-container'>

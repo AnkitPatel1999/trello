@@ -1,8 +1,8 @@
 // frontend/src/components/board/Board.tsx
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
-import TaskModal from '../taskmodal/TaskModal';
+import { TaskModalWithSuspense } from '../lazy/LazyModals';
 import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
@@ -20,12 +20,25 @@ const Board = () => {
   const [modalStatus, setModalStatus] = useState<Status>(Status.Proposed);
   const hasFetchedRef = useRef(false);
   
-  console.log('activeProjectId', activeProjectId);
   const { tasks, loading, error, fetchTasks, updateTask } = useTasks();
 
-  // Filter tasks by active project
-  const cards = tasks.filter(task => task.projectId === activeProjectId);
-  const taskCount = cards.length;
+  // Memoize filtered cards to prevent unnecessary recalculations
+  const cards = useMemo(() => 
+    tasks.filter(task => task.projectId === activeProjectId),
+    [tasks, activeProjectId]
+  );
+
+  // Memoize task count
+  const taskCount = useMemo(() => cards.length, [cards]);
+
+  // Memoize cards grouped by status to prevent recalculation on every render
+  const cardsByStatus = useMemo(() => {
+    const grouped: Record<Status, Card[]> = {} as Record<Status, Card[]>;
+    PHASES.forEach(phase => {
+      grouped[phase.key] = cards.filter(card => card.status === phase.key);
+    });
+    return grouped;
+  }, [cards]);
 
   useEffect(() => {
     if (activeProjectId && !hasFetchedRef.current) {
@@ -34,22 +47,33 @@ const Board = () => {
     }
   }, [activeProjectId, fetchTasks]);
 
-  const handleOpenModal = (status: Status) => {
+  // Memoize modal handlers
+  const handleOpenModal = useCallback((status: Status) => {
     setModalStatus(status);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, []);
 
-  const handleMove = async (id: string, to: Status) => {
+  // Memoize task move handler
+  const handleMove = useCallback(async (id: string, to: Status) => {
     try {
       await updateTask(id, { status: to });
     } catch (err) {
       console.error('Failed to move task:', err);
     }
-  };
+  }, [updateTask]);
+
+  // Memoize phase configurations
+  const phaseConfigs = useMemo(() => 
+    PHASES.map(cfg => ({
+      ...cfg,
+      cards: cardsByStatus[cfg.key] || []
+    })),
+    [cardsByStatus]
+  );
 
   if (loading) {
     return <div className="board-container">Loading tasks...</div>;
@@ -65,7 +89,11 @@ const Board = () => {
         <div className="board-header">
           <div className='board-header-left'>
             <img src={tabler_icon2} alt="" />
-            <div className="cu-all-inner"><span>All</span> <span className="cu-dot"></span> <span>{taskCount}</span></div>
+            <div className="cu-all-inner">
+              <span>All</span> 
+              <span className="cu-dot"></span> 
+              <span>{taskCount}</span>
+            </div>
             <img src={right_icon} alt="" />
           </div>
 
@@ -82,12 +110,12 @@ const Board = () => {
               className="board"
               style={{ '--phases': PHASES.length } as React.CSSProperties}
             >
-              {PHASES.map(cfg => (
+              {phaseConfigs.map(cfg => (
                 <Phase
                   key={cfg.key}
                   title={cfg.title}
                   color={cfg.badgeColor}
-                  cards={cards.filter((c: Card) => c.status === cfg.key)}
+                  cards={cfg.cards}
                   allStatuses={ALL_STATUSES}
                   onAdd={() => handleOpenModal(cfg.key)}
                   onMove={handleMove}
@@ -98,7 +126,7 @@ const Board = () => {
         </div>
       </div>
       
-      <TaskModal 
+      <TaskModalWithSuspense 
         open={isModalOpen}
         onClose={handleCloseModal}
         status={modalStatus}

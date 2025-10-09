@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { projectService } from '../services/projects';
 import type { Project, CreateProjectRequest } from '../domain/project';
-import { setProjects, setActiveProject, addProject, updateProject, deleteProject, setLoading, setError } from '../store/projectsSlice';
+import { setProjects, setActiveProject, addProject, updateProject as updateProjectAction, deleteProject as deleteProjectAction, setLoading, setError } from '../store/projectsSlice';
 import type { RootState } from '../store';
 
 export const useProjects = () => {
@@ -51,7 +51,7 @@ export const useProjects = () => {
       dispatch(setLoading(true));
       dispatch(setError(null));
       const updatedProject = await projectService.updateProject(id, updates);
-      dispatch(updateProject({ id, updates: updatedProject }));
+      dispatch(updateProjectAction({ id, updates: updatedProject }));
       return updatedProject;
     } catch (err: any) {
       dispatch(setError(err.message));
@@ -66,7 +66,7 @@ export const useProjects = () => {
       dispatch(setLoading(true));
       dispatch(setError(null));
       await projectService.deleteProject(id);
-      dispatch(deleteProject(id));
+      dispatch(deleteProjectAction(id));
     } catch (err: any) {
       dispatch(setError(err.message));
       throw err;
