@@ -1,6 +1,6 @@
 // frontend/src/components/board/Board.tsx
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
 import { TaskModalWithSuspense } from '../lazy/LazyModals';
 import { PHASES } from '../../domain/phases';
@@ -14,11 +14,9 @@ import tabler_icon2 from "../../assets/icons/tabler_icon2.svg"
 import right_icon from "../../assets/icons/right_icon.svg"
 
 const Board = () => {
-  const dispatch = useDispatch();
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStatus, setModalStatus] = useState<Status>(Status.Proposed);
-  const hasFetchedRef = useRef(false);
   
   const { tasks, loading, error, fetchTasks, updateTask } = useTasks();
 
@@ -41,9 +39,8 @@ const Board = () => {
   }, [cards]);
 
   useEffect(() => {
-    if (activeProjectId && !hasFetchedRef.current) {
+    if (activeProjectId) {
       fetchTasks();
-      hasFetchedRef.current = true;
     }
   }, [activeProjectId, fetchTasks]);
 
