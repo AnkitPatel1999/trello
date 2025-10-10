@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProjects } from '../../hooks/useProjects';
 import './projectmodal.css';
 
@@ -7,9 +7,8 @@ interface ProjectModalProps {
     onClose: () => void;
 }
 
-const ProjectModal = memo(({ open, onClose }: ProjectModalProps) => {
+const ProjectModal = ({ open, onClose }: ProjectModalProps) => {
     console.log('ProjectModal rendering');
-
     if (!open) return null;
 
     const [projectName, setProjectName] = useState<string>('');
@@ -27,7 +26,7 @@ const ProjectModal = memo(({ open, onClose }: ProjectModalProps) => {
         }
     }, [open]);
 
-    const handleCreateProject = useCallback(async () => {
+    const handleCreateProject = async () => {
         if (projectName.trim()) {
             setError('');
             try {
@@ -40,7 +39,7 @@ const ProjectModal = memo(({ open, onClose }: ProjectModalProps) => {
                 setError(err.message || 'Failed to create project');
             }
         }
-    }, [projectName, projectDescription, createProject, onClose]);
+    };
 
     const canCreateProject = projectName.trim().length > 0;
 
@@ -97,8 +96,6 @@ const ProjectModal = memo(({ open, onClose }: ProjectModalProps) => {
             </div>
         </>
     );
-});
-
-ProjectModal.displayName = 'ProjectModal';
+};
 
 export default ProjectModal;

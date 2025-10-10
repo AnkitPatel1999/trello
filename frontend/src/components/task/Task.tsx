@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React from 'react';
 import type { Card } from '../../domain/types';
 import { Status } from '../../domain/status';
 import './task.css';
@@ -9,17 +9,14 @@ type TaskProps = {
   onMove: (id: string, to: Status) => void;
 };
 
-const Task = memo<TaskProps>(({ card, allStatuses, onMove }) => {
+const Task = ({ card, allStatuses, onMove }: TaskProps) => {
   console.log('Task rendering');
-  // Memoize initials calculation
-  const initials = useMemo(() => {
-    return card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
-  }, [card.title]);
-
-  // Memoize move handler
-  const handleMove = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+  
+  const handleMove = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onMove(card.id, e.target.value as Status);
-  }, [card.id, onMove]);
+  };
+
+  const initials = card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
 
   return (
     <div className="task-card">
@@ -50,8 +47,6 @@ const Task = memo<TaskProps>(({ card, allStatuses, onMove }) => {
       </div>
     </div>
   );
-});
-
-Task.displayName = 'Task';
+};
 
 export default Task;

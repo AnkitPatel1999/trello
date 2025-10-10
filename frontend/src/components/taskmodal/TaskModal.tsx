@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTasks } from '../../hooks/useTasks';
 import { Status } from '../../domain/status';
@@ -11,7 +11,7 @@ interface TaskModalProps {
     status: Status;
 }
 
-const TaskModal = memo(({ open, onClose, status }: TaskModalProps) => {
+const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
     console.log('TaskModal rendering');
     if (!open) return null;
 
@@ -35,25 +35,25 @@ const TaskModal = memo(({ open, onClose, status }: TaskModalProps) => {
         }
     }, [open]);
 
-    const handleAddSubTask = useCallback(() => {
+    const handleAddSubTask = () => {
         if (subTaskInput.trim()) {
             setSubTasks(prev => [...prev, subTaskInput.trim()]);
             setSubTaskInput('');
         }
-    }, [subTaskInput]);
+    };
 
-    const handleRemoveSubTask = useCallback((index: number) => {
+    const handleRemoveSubTask = (index: number) => {
         setSubTasks(prev => prev.filter((_, i) => i !== index));
-    }, []);
+    };
 
-    const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             handleAddSubTask();
         }
-    }, [handleAddSubTask]);
+    };
 
-    const handleCreateTask = useCallback(async () => {
+    const handleCreateTask = async () => {
         if (taskTitle.trim()) {
             setError('');
             try {
@@ -69,7 +69,7 @@ const TaskModal = memo(({ open, onClose, status }: TaskModalProps) => {
                 setError(err.message || 'Failed to create task');
             }
         }
-    }, [taskTitle, taskDescription, status, activeProjectId, subTasks, createTask, onClose]);
+    };
 
     const canCreateTask = taskTitle.trim().length > 0;
 
@@ -164,8 +164,6 @@ const TaskModal = memo(({ open, onClose, status }: TaskModalProps) => {
             </div>
         </>
     );
-});
-
-TaskModal.displayName = 'TaskModal';
+};
 
 export default TaskModal;

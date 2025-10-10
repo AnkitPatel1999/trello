@@ -1,5 +1,5 @@
 // frontend/src/components/leftsidebar/LeftSidebar.tsx
-import React, { useCallback, memo } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveProject } from '../../store/projectsSlice';
 import { useProjects } from '../../hooks/useProjects';
@@ -11,17 +11,16 @@ import search from "../../assets/icons/search.svg"
 import settings from "../../assets/icons/settings.svg"
 import folder from "../../assets/icons/folder.svg"
 
-const LeftSidebar = memo(() => {
+const LeftSidebar = () => {
     console.log('LeftSidebar rendering');
     const dispatch = useDispatch();
     const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
     
     const { projects, loading, error } = useProjects();
 
-    // Memoize project click handler
-    const handleProjectClick = useCallback((projectId: string) => {
+    const handleProjectClick = (projectId: string) => {
         dispatch(setActiveProject(projectId));
-    }, [dispatch]);
+    };
 
     return (
         <div className="left-sidebar">
@@ -70,8 +69,6 @@ const LeftSidebar = memo(() => {
             </div>
         </div>
     );
-});
-
-LeftSidebar.displayName = 'LeftSidebar';
+};
 
 export default LeftSidebar;

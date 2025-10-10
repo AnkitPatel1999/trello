@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { ProjectModalWithSuspense } from '../lazy/LazyModals';
+import ProjectModal from '../projectmodal/ProjectModal';
 import "./header.css";
 
 import tabler_icon from '../../assets/icons/tabler_icon.svg';
@@ -11,17 +11,17 @@ export default function Header() {
     const { user, logout } = useAuth();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
-    const handleCreateProject = useCallback(() => {
+    const handleCreateProject = () => {
         setIsProjectModalOpen(true);
-    }, []);
+    };
 
-    const handleCloseProjectModal = useCallback(() => {
+    const handleCloseProjectModal = () => {
         setIsProjectModalOpen(false);
-    }, []);
+    };
 
-    const handleLogout = useCallback(() => {
+    const handleLogout = () => {
         logout();
-    }, [logout]);
+    };
 
     return (
         <>
@@ -56,10 +56,12 @@ export default function Header() {
                 </div>
             </div>
 
-            <ProjectModalWithSuspense 
-                open={isProjectModalOpen}
-                onClose={handleCloseProjectModal}
-            />
+            {isProjectModalOpen && (
+                <ProjectModal 
+                    open={isProjectModalOpen}
+                    onClose={handleCloseProjectModal}
+                />
+            )}
         </>
     )
 }

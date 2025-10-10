@@ -1,8 +1,8 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
-import TaskModal from '../taskmodal/TaskModal'; // Import directly instead of lazy
+import TaskModal from '../taskmodal/TaskModal';
 import "./phase.css";
 
 import plus from "../../assets/icons/plus.svg"
@@ -16,21 +16,21 @@ type PhaseProps = {
   onMove: (id: string, to: Status) => void;
 };
 
-const Phase = memo(({ title, color, cards, allStatuses, status, onMove }: PhaseProps) => {
+const Phase = ({ title, color, cards, allStatuses, status, onMove }: PhaseProps) => {
   console.log('Phase rendering');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAdd = useCallback(() => {
-    console.log('Button clicked, opening modal'); // Debug log
+  const handleAdd = () => {
+    console.log('Button clicked, opening modal');
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleCloseModal = useCallback(() => {
-    console.log('Closing modal'); // Debug log
+  const handleCloseModal = () => {
+    console.log('Closing modal');
     setIsModalOpen(false);
-  }, []);
+  };
 
-  console.log('Phase render, isModalOpen:', isModalOpen); // Debug log
+  console.log('Phase render, isModalOpen:', isModalOpen);
 
   return (
     <>
@@ -57,15 +57,15 @@ const Phase = memo(({ title, color, cards, allStatuses, status, onMove }: PhaseP
         </div>
       </section>
 
-      <TaskModal 
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        status={status}
-      />
+      {isModalOpen && (
+        <TaskModal 
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          status={status}
+        />
+      )}
     </>
   );
-});
-
-Phase.displayName = 'Phase';
+};
 
 export default Phase;

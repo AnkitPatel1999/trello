@@ -1,5 +1,5 @@
 // frontend/src/hooks/useTasks.ts
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { apiService } from '../services/api';
 import type { Card } from '../domain/types';
@@ -13,7 +13,7 @@ export const useTasks = () => {
   const loading = useSelector((state: RootState) => state.cards.loading);
   const error = useSelector((state: RootState) => state.cards.error);
 
-  const fetchTasks = useCallback(async () => {
+  const fetchTasks = async () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -24,9 +24,9 @@ export const useTasks = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch]);
+  };
 
-  const createTask = useCallback(async (task: Omit<Card, 'id'>) => {
+  const createTask = async (task: Omit<Card, 'id'>) => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -39,9 +39,9 @@ export const useTasks = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch]);
+  };
 
-  const updateTask = useCallback(async (id: string, task: Partial<Omit<Card, 'id'>>) => {
+  const updateTask = async (id: string, task: Partial<Omit<Card, 'id'>>) => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -54,9 +54,9 @@ export const useTasks = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch]); // Add dispatch back to dependencies
+  };
 
-  const deleteTask = useCallback(async (id: string) => {
+  const deleteTask = async (id: string) => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -68,12 +68,11 @@ export const useTasks = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch]);
+  };
 
-  // Fetch tasks on mount only
   useEffect(() => {
     fetchTasks();
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   return {
     tasks: cards,
