@@ -5,6 +5,7 @@ import "./header.css";
 
 import tabler_icon from '../../assets/icons/tabler_icon.svg';
 import plus from '../../assets/icons/plus.svg';
+import notification from '../../assets/icons/notification.png';
 
 export default function Header() {
     console.log('Header rendering');
@@ -40,6 +41,17 @@ export default function Header() {
                                 <img src={plus} alt="plus" />
                                 <span className="ae-btn-text">New Project</span>
                             </button>
+
+                            <div className='cu-notification-container'>
+                                <img src={notification} alt="" />
+                                <div className="notification-tooltip">
+                                    <div className="tooltip-title">Notifications</div>
+                                    <div className="tooltip-content">
+                                        John moved task 1 from Inprogress to done
+                                    </div>
+                                </div>
+                            </div>
+
                             {user && (
                                 <div className="ae-d-flex ae-align-center ae-gap-5">
                                     <span className="user-email">{user.email}</span>

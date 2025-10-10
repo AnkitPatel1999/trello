@@ -9,3 +9,50 @@
     font-weight: var(--fw-500);
 }
 
+
+.cu-notification-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.cu-notification-container img{
+    height: 16px;
+    width: 16px;
+}
+
+.notification-tooltip {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #EBEBEB;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px 0px #0000000A, 0px 0px 4px 0px #00000014;
+    padding: 16px;
+    min-width: 250px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+    z-index: 1000;
+}
+
+.cu-notification-container:hover .notification-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.tooltip-title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-600);
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.tooltip-content {
+    font-size: var(--fs-sm);
+    color: var(--secondary-color);
+    line-height: 1.4;
+}
