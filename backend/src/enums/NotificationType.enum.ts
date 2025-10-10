@@ -7,6 +7,7 @@ export enum NotificationType {
   // Task/Project notifications
   TASK_ASSIGNED = 'TASK_ASSIGNED',
   TASK_UPDATED = 'TASK_UPDATED',
+  TASK_MOVED = 'TASK_MOVED',
   TASK_COMPLETED = 'TASK_COMPLETED',
   TASK_DUE_SOON = 'TASK_DUE_SOON',
   TASK_OVERDUE = 'TASK_OVERDUE',
@@ -50,6 +51,7 @@ export const NotificationTypeLabels: Record<NotificationType, string> = {
   [NotificationType.MENTION]: 'You were mentioned',
   [NotificationType.TASK_ASSIGNED]: 'Task Assigned',
   [NotificationType.TASK_UPDATED]: 'Task Updated',
+  [NotificationType.TASK_MOVED]: 'Task Moved',
   [NotificationType.TASK_COMPLETED]: 'Task Completed',
   [NotificationType.TASK_DUE_SOON]: 'Task Due Soon',
   [NotificationType.TASK_OVERDUE]: 'Task Overdue',

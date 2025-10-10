@@ -6,8 +6,14 @@ import { logger } from '../utils/logger';
 import { Task } from '../models/Task.model';
 import { Project } from '../models/Project.model';
 import { generateId } from '../utils/helpers';
+import { TaskNotificationService } from '../services/TaskNotificationService';
 
 export class TaskController {
+  private taskNotificationService: TaskNotificationService;
+
+  constructor(taskNotificationService: TaskNotificationService) {
+    this.taskNotificationService = taskNotificationService;
+  }
   createTask = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { title, description, subtitles, status, projectId } = req.body;
     const userId = req.user!.id;
@@ -137,6 +143,14 @@ export class TaskController {
     const userId = req.user!.id;
 
     try {
+      // Get the current task to check if status is changing
+      const currentTask = await Task.findOne({ _id: id, userId });
+      if (!currentTask) {
+        ApiResponse.notFound(res, 'Task not found');
+        return;
+      }
+
+      const oldStatus = currentTask.status;
       const updateData: any = { updatedAt: new Date() };
       
       if (title !== undefined) updateData.title = title;
@@ -153,6 +167,27 @@ export class TaskController {
       if (!task) {
         ApiResponse.notFound(res, 'Task not found');
         return;
+      }
+
+      // Send notifications if status changed
+      if (status !== undefined && status !== oldStatus && id) {
+        try {
+          await this.taskNotificationService.notifyTaskMoved(
+            id,
+            userId,
+            oldStatus,
+            status
+          );
+        } catch (notificationError) {
+          logger.error('Failed to send task move notifications', {
+            error: notificationError instanceof Error ? notificationError.message : 'Unknown error',
+            taskId: id,
+            userId,
+            fromStatus: oldStatus,
+            toStatus: status,
+          });
+          // Don't fail the request if notifications fail
+        }
       }
 
       logger.info('Task updated', { taskId: id, userId, title: task.title });

@@ -27,6 +27,10 @@ export interface VerifyOtpRequest {
 export interface AuthResponse {
   success: boolean;
   message: string;
+  data?: {
+    user: User;
+    token: string;
+  };
   user?: User;
   token?: string;
 }

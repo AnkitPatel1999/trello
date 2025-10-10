@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Moved Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .notification-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .task-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .status-change {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .status-from, .status-to {
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin: 0 10px;
+        }
+        .status-from {
+            background-color: #ffc107;
+            color: #856404;
+        }
+        .status-to {
+            background-color: #28a745;
+            color: #ffffff;
+        }
+        .arrow {
+            font-size: 18px;
+            color: #6c757d;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Task Update Notification</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hello <strong>{{userName}}</strong>,</p>
+            
+            <div class="notification-box">
+                <p><strong>{{moverName}}</strong> has moved a task in the project <strong>{{projectName}}</strong>.</p>
+            </div>
+            
+            <div class="task-info">
+                <h3>Task Details:</h3>
+                <p><strong>Task:</strong> {{taskTitle}}</p>
+                <p><strong>Project:</strong> {{projectName}}</p>
+                <p><strong>Moved by:</strong> {{moverName}}</p>
+                <p><strong>Moved at:</strong> {{movedAt}}</p>
+            </div>
+            
+            <div class="status-change">
+                <span class="status-from">{{fromStatus}}</span>
+                <span class="arrow">→</span>
+                <span class="status-to">{{toStatus}}</span>
+            </div>
+            
+            <p>You can view the updated task and project details by logging into your dashboard.</p>
+            
+            <div style="text-align: center;">
+                <a href="#" class="button">View Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated notification from your project management system.</p>
+            <p>If you have any questions, please contact your project administrator.</p>
+        </div>
+    </div>
+</body>
+</html>

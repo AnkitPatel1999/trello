@@ -110,11 +110,11 @@ const authSlice = createSlice({
       })
       .addCase(verifyOtp.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (action.payload.success && action.payload.user && action.payload.token) {
-          localStorage.setItem('user', JSON.stringify(action.payload.user));
-          localStorage.setItem('auth_token', action.payload.token);
+        if (action.payload.success && action.payload.data && action.payload.data.user && action.payload.data.token) {
+          localStorage.setItem('user', JSON.stringify(action.payload.data.user));
+          localStorage.setItem('auth_token', action.payload.data.token);
           
-          state.user = action.payload.user;
+          state.user = action.payload.data.user;
           state.isAuthenticated = true;
           state.otpSent = false;
           state.email = null;

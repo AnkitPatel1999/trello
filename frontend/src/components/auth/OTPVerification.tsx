@@ -14,7 +14,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
   console.log('OTPVerification rendering');
 
   const dispatch = useDispatch();
-  const { error, email, isLoading } = useSelector((state: RootState) => state.auth);
+  const { error, email, isLoading, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -25,6 +25,14 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
       inputRefs.current[0].focus();
     }
   }, []);
+
+  useEffect(() => {
+    // Redirect to dashboard when authentication is successful
+    if (isAuthenticated) {
+      console.log('OTP verified successfully, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return; // Only allow single digit
@@ -74,8 +82,8 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
       const result = await dispatch(verifyOtp({ email, otp: otpString }) as any);
       
       if (verifyOtp.fulfilled.match(result)) {
-        // Simple redirect to dashboard
-        navigate('/dashboard', { replace: true });
+        // Call the onSuccess callback to let parent handle navigation
+        onSuccess();
       }
     } catch (error) {
       console.error('OTP verification failed:', error);

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import ProjectModal from '../projectmodal/ProjectModal';
 import "./header.css";
 
@@ -10,7 +11,9 @@ import notification from '../../assets/icons/notification.png';
 export default function Header() {
     console.log('Header rendering');
     const { user, logout } = useAuth();
+    const { notifications, markNotificationAsRead, isConnected } = useWebSocket();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
     const handleCreateProject = () => {
         setIsProjectModalOpen(true);
@@ -23,6 +26,20 @@ export default function Header() {
     const handleLogout = () => {
         logout();
     };
+
+    const handleNotificationMouseEnter = () => {
+        setIsNotificationOpen(true);
+    };
+
+    const handleNotificationMouseLeave = () => {
+        setIsNotificationOpen(false);
+    };
+
+    const handleNotificationItemClick = (notificationId: string) => {
+        markNotificationAsRead(notificationId);
+    };
+
+    const unreadCount = notifications.filter(n => !n.readAt).length;
 
     return (
         <>
@@ -43,13 +60,54 @@ export default function Header() {
                             </button>
 
                             <div className='cu-notification-container'>
-                                <img src={notification} alt="" />
-                                <div className="notification-tooltip">
-                                    <div className="tooltip-title">Notifications</div>
-                                    <div className="tooltip-content">
-                                        John moved task 1 from Inprogress to done
+                                <button 
+                                    className="notification-button"
+                                    onMouseEnter={handleNotificationMouseEnter}
+                                    onMouseLeave={handleNotificationMouseLeave}
+                                >
+                                    <img src={notification} alt="Notifications" />
+                                    {unreadCount > 0 && (
+                                        <span className="notification-badge">{unreadCount}</span>
+                                    )}
+                                    {!isConnected && (
+                                        <span className="connection-indicator offline" title="Disconnected"></span>
+                                    )}
+                                </button>
+                                
+                                {isNotificationOpen && (
+                                    <div className="notification-dropdown">
+                                        <div className="notification-header">
+                                            <h3>Notifications</h3>
+                                            <span className="connection-status">
+                                                {isConnected ? '🟢 Online' : '🔴 Offline'}
+                                            </span>
+                                        </div>
+                                        <div className="notification-list">
+                                            {notifications.length === 0 ? (
+                                                <div className="notification-empty">
+                                                    No notifications yet
+                                                </div>
+                                            ) : (
+                                                notifications.map(notif => (
+                                                    <div 
+                                                        key={notif.id}
+                                                        className={`notification-item ${!notif.readAt ? 'unread' : ''}`}
+                                                        onClick={() => handleNotificationItemClick(notif.id)}
+                                                    >
+                                                        <div className="notification-content">
+                                                            <div className="notification-title">{notif.title}</div>
+                                                            <div className="notification-message">{notif.message}</div>
+                                                            <div className="notification-time">
+                                                                {new Date(notif.createdAt).toLocaleString()}
+                                                            </div>
+                                                        </div>
+                                                        {!notif.readAt && <div className="unread-indicator"></div>}
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
 
                             {user && (

@@ -9,6 +9,11 @@ import { errorHandler } from './middlewares/errorHandler.middleware';
 import { routes } from './routes';
 import { NotificationService } from './services/notification/NotificationService';
 import { NotificationRepository } from './repositories/NotificationRepository';
+import { NotificationHandler } from './websocket/NotificationHandler';
+import { ConnectionManager } from './websocket/ConnectionManager';
+import { EmailService } from './services/email/EmailService';
+import { Server as SocketIOServer } from 'socket.io';
+import { createServer } from 'http';
 // Simple config using environment variables
 const config = {
   port: parseInt(process.env.PORT || '3001'),
@@ -23,13 +28,23 @@ import './models/Task.model';
 
 class NotificationServer {
   private app: express.Application;
+  private server: any;
+  private io: SocketIOServer;
 
   constructor() {
     this.app = express();
+    this.server = createServer(this.app);
+    this.io = new SocketIOServer(this.server, {
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+      }
+    });
     this.initializeServices();
     this.setupMiddlewares();
     this.setupRoutes();
     this.setupErrorHandling();
+    this.setupWebSocket();
   }
 
   private initializeServices(): void {
@@ -38,9 +53,15 @@ class NotificationServer {
 
     // Initialize services
     const notificationService = new NotificationService(notificationRepository);
+    const notificationHandler = new NotificationHandler(this.io);
+    const connectionManager = new ConnectionManager(this.io);
+    const emailService = new EmailService();
 
     // Make services available globally
     (global as any).notificationService = notificationService;
+    (global as any).notificationHandler = notificationHandler;
+    (global as any).connectionManager = connectionManager;
+    (global as any).emailService = emailService;
   }
 
   private setupMiddlewares(): void {
@@ -85,14 +106,57 @@ class NotificationServer {
     this.app.use(errorHandler);
   }
 
+  private setupWebSocket(): void {
+    this.io.on('connection', (socket) => {
+      console.log('Client connected:', socket.id);
+
+      // Handle user authentication and join
+      socket.on('join', async (data: { userId: string }) => {
+        try {
+          const connectionManager = (global as any).connectionManager;
+          if (connectionManager) {
+            await connectionManager.handleUserJoin(socket, data.userId);
+          }
+        } catch (error) {
+          console.error('Failed to handle user join:', error);
+        }
+      });
+
+      // Handle mark notification as read
+      socket.on('mark_notification_read', async (data: { notificationId: string }) => {
+        try {
+          const notificationHandler = (global as any).notificationHandler;
+          if (notificationHandler) {
+            await notificationHandler.handleMarkAsRead(socket, data.notificationId);
+          }
+        } catch (error) {
+          console.error('Failed to mark notification as read:', error);
+        }
+      });
+
+      // Handle disconnect
+      socket.on('disconnect', async (reason) => {
+        try {
+          const connectionManager = (global as any).connectionManager;
+          if (connectionManager) {
+            await connectionManager.handleDisconnect(socket, reason);
+          }
+        } catch (error) {
+          console.error('Failed to handle disconnect:', error);
+        }
+      });
+    });
+  }
+
   async start(): Promise<void> {
     try {
       // Connect to database
       await connectDatabase();
 
       // Start server
-      this.app.listen(config.port, () => {
+      this.server.listen(config.port, () => {
         console.log(`Server started on port ${config.port}`);
+        console.log(`WebSocket server ready`);
       });
 
       // Setup graceful shutdown
