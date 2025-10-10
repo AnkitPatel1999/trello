@@ -10,6 +10,7 @@ type TaskProps = {
 };
 
 const Task = memo<TaskProps>(({ card, allStatuses, onMove }) => {
+  console.log('Task rendering');
   // Memoize initials calculation
   const initials = useMemo(() => {
     return card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);

@@ -7,6 +7,7 @@ import tabler_icon from '../../assets/icons/tabler_icon.svg';
 import plus from '../../assets/icons/plus.svg';
 
 export default function Header() {
+    console.log('Header rendering');
     const { user, logout } = useAuth();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 

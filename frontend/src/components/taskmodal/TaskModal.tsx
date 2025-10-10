@@ -12,6 +12,7 @@ interface TaskModalProps {
 }
 
 const TaskModal = memo(({ open, onClose, status }: TaskModalProps) => {
+    console.log('TaskModal rendering');
     if (!open) return null;
 
     const [taskTitle, setTaskTitle] = useState<string>('');

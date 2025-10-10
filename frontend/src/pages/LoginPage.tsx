@@ -6,6 +6,8 @@ import EmailLogin from '../components/auth/EmailLogin';
 import OTPVerification from '../components/auth/OTPVerification';
 
 const LoginPage = () => {
+  console.log('LoginPage rendering');
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showOtp, setShowOtp] = useState(false);

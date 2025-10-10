@@ -11,6 +11,8 @@ interface OTPVerificationProps {
 }
 
 const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
+  console.log('OTPVerification rendering');
+
   const dispatch = useDispatch();
   const { error, email, isLoading } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();

@@ -20,8 +20,9 @@ export const useProjects = () => {
       const data = await apiService.getProjects();
       dispatch(setProjects(data));
       
-      // Set active project if none is selected
-      if (!activeProjectId && data.length > 0) {
+      // Set active project if none is selected - but don't depend on activeProjectId
+      const currentActiveId = projects.find(p => p.id === activeProjectId)?.id;
+      if (!currentActiveId && data.length > 0) {
         dispatch(setActiveProject(data[0].id));
       }
     } catch (err: any) {
@@ -29,7 +30,7 @@ export const useProjects = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch]); // Remove activeProjectId dependency to prevent infinite loop
+  }, [dispatch, projects, activeProjectId]); // Add dependencies back but handle the logic properly
 
   const createProject = useCallback(async (project: CreateProjectRequest) => {
     try {
@@ -83,6 +84,13 @@ export const useProjects = () => {
   useEffect(() => {
     fetchProjects();
   }, []); // Empty dependency array to run only once
+
+  // Separate effect to set active project
+  useEffect(() => {
+    if (!activeProjectId && projects.length > 0) {
+      dispatch(setActiveProject(projects[0].id));
+    }
+  }, [activeProjectId, projects, dispatch]);
 
   return {
     projects,

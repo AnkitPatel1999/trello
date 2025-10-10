@@ -4,6 +4,8 @@ import Board from '../components/board/Board';
 import LeftSidebar from '../components/leftsidebar/LeftSidebar';
 
 const DashboardPage = () => {
+  console.log('DashboardPage rendering');
+
   return (
     <div className='app-container'>
       <div className='ae-d-flex'>

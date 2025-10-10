@@ -9,6 +9,8 @@ interface EmailLoginProps {
 }
 
 const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
+  console.log('EmailLogin rendering');
+
   const dispatch = useDispatch();
   const { error, isLoading } = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState('');

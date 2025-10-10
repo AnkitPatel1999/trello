@@ -7,6 +7,7 @@ import { setCards, addCard, updateCard, deleteCard, setLoading, setError } from 
 import type { RootState } from '../store';
 
 export const useTasks = () => {
+  console.log('useTasks rendering');
   const dispatch = useDispatch();
   const cards = useSelector((state: RootState) => state.cards.cards);
   const loading = useSelector((state: RootState) => state.cards.loading);
@@ -53,7 +54,7 @@ export const useTasks = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch]);
+  }, [dispatch]); // Add dispatch back to dependencies
 
   const deleteTask = useCallback(async (id: string) => {
     try {

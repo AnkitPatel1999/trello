@@ -8,6 +8,8 @@ interface ProjectModalProps {
 }
 
 const ProjectModal = memo(({ open, onClose }: ProjectModalProps) => {
+    console.log('ProjectModal rendering');
+
     if (!open) return null;
 
     const [projectName, setProjectName] = useState<string>('');

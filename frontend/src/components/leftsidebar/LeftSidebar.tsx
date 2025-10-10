@@ -12,6 +12,7 @@ import settings from "../../assets/icons/settings.svg"
 import folder from "../../assets/icons/folder.svg"
 
 const LeftSidebar = memo(() => {
+    console.log('LeftSidebar rendering');
     const dispatch = useDispatch();
     const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
     

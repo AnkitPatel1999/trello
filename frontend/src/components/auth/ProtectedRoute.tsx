@@ -6,6 +6,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  console.log('ProtectedRoute rendering');
+
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 

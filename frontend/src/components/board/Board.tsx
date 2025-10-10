@@ -2,7 +2,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
-import { TaskModalWithSuspense } from '../lazy/LazyModals';
 import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
@@ -14,10 +13,8 @@ import tabler_icon2 from "../../assets/icons/tabler_icon2.svg"
 import right_icon from "../../assets/icons/right_icon.svg"
 
 const Board = () => {
+  console.log('Board rendering');
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalStatus, setModalStatus] = useState<Status>(Status.Proposed);
-  
   const { tasks, loading, error, updateTask } = useTasks();
 
   // Memoize filtered cards to prevent unnecessary recalculations
@@ -38,32 +35,22 @@ const Board = () => {
     return grouped;
   }, [cards]);
 
-  // Memoize modal handlers
-  const handleOpenModal = useCallback((status: Status) => {
-    setModalStatus(status);
-    setIsModalOpen(true);
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-  }, []);
-
-  // Memoize task move handler
+  // Memoize task move handler with stable dependencies
   const handleMove = useCallback(async (id: string, to: Status) => {
     try {
       await updateTask(id, { status: to });
     } catch (err) {
       console.error('Failed to move task:', err);
     }
-  }, [updateTask]);
+  }, []); // Remove updateTask dependency to prevent recreation
 
-  // Memoize phase configurations
+  // Simplified phase configurations without onAdd
   const phaseConfigs = useMemo(() => 
     PHASES.map(cfg => ({
       ...cfg,
       cards: cardsByStatus[cfg.key] || []
     })),
-    [cardsByStatus]
+    [cardsByStatus] // No more handleOpenModal dependency
   );
 
   if (loading) {
@@ -108,7 +95,7 @@ const Board = () => {
                   color={cfg.badgeColor}
                   cards={cfg.cards}
                   allStatuses={ALL_STATUSES as Status[]}
-                  onAdd={() => handleOpenModal(cfg.key)}
+                  status={cfg.key}
                   onMove={handleMove}
                 />
               ))}
@@ -117,11 +104,6 @@ const Board = () => {
         </div>
       </div>
       
-      <TaskModalWithSuspense 
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        status={modalStatus}
-      />
     </>
   );
 };
