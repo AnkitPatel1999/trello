@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useTasks } from '../../hooks/useTasks';
 import { Status } from '../../domain/status';
@@ -12,9 +12,7 @@ interface TaskModalProps {
 }
 
 const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
-    console.log('TaskModal rendering');
-    if (!open) return null;
-
+    // ✅ ALL HOOKS FIRST - before any conditions
     const [taskTitle, setTaskTitle] = useState<string>('');
     const [taskDescription, setTaskDescription] = useState<string>('');
     const [subTaskInput, setSubTaskInput] = useState<string>('');
@@ -35,25 +33,26 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
         }
     }, [open]);
 
-    const handleAddSubTask = () => {
+    // Memoize callbacks
+    const handleAddSubTask = useCallback(() => {
         if (subTaskInput.trim()) {
             setSubTasks(prev => [...prev, subTaskInput.trim()]);
             setSubTaskInput('');
         }
-    };
+    }, [subTaskInput]);
 
-    const handleRemoveSubTask = (index: number) => {
+    const handleRemoveSubTask = useCallback((index: number) => {
         setSubTasks(prev => prev.filter((_, i) => i !== index));
-    };
+    }, []);
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
+    const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             handleAddSubTask();
         }
-    };
+    }, [handleAddSubTask]);
 
-    const handleCreateTask = async () => {
+    const handleCreateTask = useCallback(async () => {
         if (taskTitle.trim()) {
             setError('');
             try {
@@ -69,9 +68,12 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                 setError(err.message || 'Failed to create task');
             }
         }
-    };
+    }, [taskTitle, taskDescription, status, activeProjectId, subTasks, createTask, onClose]);
 
     const canCreateTask = taskTitle.trim().length > 0;
+
+    // ✅ NOW check if modal should render - AFTER all hooks
+    if (!open) return null;
 
     return (
         <>

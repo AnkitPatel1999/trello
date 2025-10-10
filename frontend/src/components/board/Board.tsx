@@ -1,5 +1,4 @@
-// frontend/src/components/board/Board.tsx
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
 import { PHASES } from '../../domain/phases';
@@ -13,11 +12,10 @@ import tabler_icon2 from "../../assets/icons/tabler_icon2.svg"
 import right_icon from "../../assets/icons/right_icon.svg"
 
 const Board = () => {
-  console.log('Board rendering');
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   const { tasks, loading, error, updateTask } = useTasks();
 
-  // Memoize filtered cards to prevent unnecessary recalculations
+  // Memoize filtered cards
   const cards = useMemo(() => 
     tasks.filter(task => task.projectId === activeProjectId),
     [tasks, activeProjectId]
@@ -26,7 +24,7 @@ const Board = () => {
   // Memoize task count
   const taskCount = useMemo(() => cards.length, [cards]);
 
-  // Memoize cards grouped by status to prevent recalculation on every render
+  // Memoize cards grouped by status
   const cardsByStatus = useMemo(() => {
     const grouped: Record<Status, Card[]> = {} as Record<Status, Card[]>;
     PHASES.forEach(phase => {
@@ -35,22 +33,22 @@ const Board = () => {
     return grouped;
   }, [cards]);
 
-  // Memoize task move handler with stable dependencies
+  // ✅ Fix: Include updateTask in dependencies
   const handleMove = useCallback(async (id: string, to: Status) => {
     try {
       await updateTask(id, { status: to });
     } catch (err) {
       console.error('Failed to move task:', err);
     }
-  }, []); // Remove updateTask dependency to prevent recreation
+  }, [updateTask]);
 
-  // Simplified phase configurations without onAdd
+  // Simplified phase configurations
   const phaseConfigs = useMemo(() => 
     PHASES.map(cfg => ({
       ...cfg,
       cards: cardsByStatus[cfg.key] || []
     })),
-    [cardsByStatus] // No more handleOpenModal dependency
+    [cardsByStatus]
   );
 
   if (loading) {
@@ -62,49 +60,46 @@ const Board = () => {
   }
 
   return (
-    <>
-      <div className='board-container'>
-        <div className="board-header">
-          <div className='board-header-left'>
-            <img src={tabler_icon2} alt="" />
-            <div className="cu-all-inner">
-              <span>All</span> 
-              <span className="cu-dot"></span> 
-              <span>{taskCount}</span>
-            </div>
-            <img src={right_icon} alt="" />
+    <div className='board-container'>
+      <div className="board-header">
+        <div className='board-header-left'>
+          <img src={tabler_icon2} alt="" />
+          <div className="cu-all-inner">
+            <span>All</span> 
+            <span className="cu-dot"></span> 
+            <span>{taskCount}</span>
           </div>
-
-          <div className="board-header-right">
-            <span>Filter</span>
-            <span>Sort</span>
-            <span>Options</span>
-          </div>
+          <img src={right_icon} alt="" />
         </div>
 
-        <div>
-          <div className="board-scroll">
-            <div
-              className="board"
-              style={{ '--phases': PHASES.length } as React.CSSProperties}
-            >
-              {phaseConfigs.map(cfg => (
-                <Phase
-                  key={cfg.key}
-                  title={cfg.title}
-                  color={cfg.badgeColor}
-                  cards={cfg.cards}
-                  allStatuses={ALL_STATUSES as Status[]}
-                  status={cfg.key}
-                  onMove={handleMove}
-                />
-              ))}
-            </div>
+        <div className="board-header-right">
+          <span>Filter</span>
+          <span>Sort</span>
+          <span>Options</span>
+        </div>
+      </div>
+
+      <div>
+        <div className="board-scroll">
+          <div
+            className="board"
+            style={{ '--phases': PHASES.length } as React.CSSProperties}
+          >
+            {phaseConfigs.map(cfg => (
+              <Phase
+                key={cfg.key}
+                title={cfg.title}
+                color={cfg.badgeColor}
+                cards={cfg.cards}
+                allStatuses={ALL_STATUSES as Status[]}
+                status={cfg.key}
+                onMove={handleMove}
+              />
+            ))}
           </div>
         </div>
       </div>
-      
-    </>
+    </div>
   );
 };
 

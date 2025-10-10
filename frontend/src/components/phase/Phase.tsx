@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
 import TaskModal from '../taskmodal/TaskModal';
 import "./phase.css";
-
 import plus from "../../assets/icons/plus.svg"
 
 type PhaseProps = {
@@ -17,27 +16,23 @@ type PhaseProps = {
 };
 
 const Phase = ({ title, color, cards, allStatuses, status, onMove }: PhaseProps) => {
-  console.log('Phase rendering');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAdd = () => {
-    console.log('Button clicked, opening modal');
+  // ✅ Memoize handlers
+  const handleAdd = useCallback(() => {
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
-    console.log('Closing modal');
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
-  };
-
-  console.log('Phase render, isModalOpen:', isModalOpen);
+  }, []);
 
   return (
     <>
       <section className="phase" style={{ '--dot-color': color } as React.CSSProperties}>
         <header className="phase-header">
-          <h3 className="ae-label phase-title color-dot">{title} </h3>
-          <small> {cards.length}</small>
+          <h3 className="ae-label phase-title color-dot">{title}</h3>
+          <small>{cards.length}</small>
         </header>
 
         <button className="ae-btn ae-btn-flat ae-gap-5" onClick={handleAdd}>
@@ -57,6 +52,7 @@ const Phase = ({ title, color, cards, allStatuses, status, onMove }: PhaseProps)
         </div>
       </section>
 
+      {/* ✅ Fix: Remove {true &&}, just use conditional */}
       {isModalOpen && (
         <TaskModal 
           open={isModalOpen}
