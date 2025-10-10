@@ -15,19 +15,32 @@ const router = Router();
 // Initialize services
 const notificationRepository = new NotificationRepository();
 const notificationService = new NotificationService(notificationRepository);
-const notificationHandler = (global as any).notificationHandler;
-const connectionManager = (global as any).connectionManager;
-const emailService = (global as any).emailService;
 
-// Initialize TaskNotificationService
-const taskNotificationService = new TaskNotificationService(
-  notificationService,
-  notificationHandler,
-  connectionManager,
-  emailService
-);
+// Initialize TaskNotificationService and TaskController lazily
+let taskNotificationService: TaskNotificationService;
+let taskController: TaskController;
 
-const taskController = new TaskController(taskNotificationService);
+const initializeTaskController = () => {
+  if (!taskNotificationService) {
+    const notificationHandler = (global as any).notificationHandler;
+    const connectionManager = (global as any).connectionManager;
+    const emailService = (global as any).emailService;
+
+    if (!notificationHandler || !connectionManager || !emailService) {
+      throw new Error('Required services not initialized');
+    }
+
+    taskNotificationService = new TaskNotificationService(
+      notificationService,
+      notificationHandler,
+      connectionManager,
+      emailService
+    );
+
+    taskController = new TaskController(taskNotificationService);
+  }
+  return taskController;
+};
 
 // Apply authentication to all routes
 router.use(authMiddleware);
@@ -36,26 +49,26 @@ router.use(authMiddleware);
 router.post(
   '/',
   validationMiddleware(taskValidator.createTask),
-  taskController.createTask
+  (req, res, next) => initializeTaskController().createTask(req, res, next)
 );
 
 // Get all tasks (with optional projectId and status filters)
-router.get('/', taskController.getTasks);
+router.get('/', (req, res, next) => initializeTaskController().getTasks(req, res, next));
 
 // Get tasks by project
-router.get('/project/:projectId', taskController.getTasksByProject);
+router.get('/project/:projectId', (req, res, next) => initializeTaskController().getTasksByProject(req, res, next));
 
 // Get task by ID
-router.get('/:id', taskController.getTaskById);
+router.get('/:id', (req, res, next) => initializeTaskController().getTaskById(req, res, next));
 
 // Update task
 router.put(
   '/:id',
   validationMiddleware(taskValidator.updateTask),
-  taskController.updateTask
+  (req, res, next) => initializeTaskController().updateTask(req, res, next)
 );
 
 // Delete task
-router.delete('/:id', taskController.deleteTask);
+router.delete('/:id', (req, res, next) => initializeTaskController().deleteTask(req, res, next));
 
 export { router as taskRoutes };

@@ -86,6 +86,14 @@ export class NotificationHandler {
 
   async sendNotificationToUser(userId: string, notification: any): Promise<void> {
     try {
+      console.log('Sending notification to user:', { userId, notificationId: notification._id });
+      console.log('Notification data:', {
+        id: notification._id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+      });
+      
       this.io.to(`user:${userId}`).emit('notification', {
         id: notification._id,
         type: notification.type,
@@ -95,6 +103,8 @@ export class NotificationHandler {
         createdAt: notification.createdAt,
         metadata: notification.metadata,
       });
+      
+      console.log('Notification sent successfully to user:', userId);
     } catch (error) {
       logger.error('Failed to send notification to user', {
         error: error instanceof Error ? error.message : 'Unknown error',

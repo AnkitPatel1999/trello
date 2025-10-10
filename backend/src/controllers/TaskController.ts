@@ -179,7 +179,7 @@ export class TaskController {
             status
           );
         } catch (notificationError) {
-          logger.error('Failed to send task move notifications', {
+          logger.error('Failed to send task move notifications1', {
             error: notificationError instanceof Error ? notificationError.message : 'Unknown error',
             taskId: id,
             userId,

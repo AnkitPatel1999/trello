@@ -11,14 +11,18 @@ export class ConnectionManager {
 
   async handleUserJoin(socket: Socket, userId: string): Promise<void> {
     try {
+      console.log('Handling user join:', { userId, socketId: socket.id });
+      
       // Join user-specific room
       await socket.join(`user:${userId}`);
+      console.log('User joined room:', `user:${userId}`);
       
       // Track user socket
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, new Set());
       }
       this.userSockets.get(userId)!.add(socket.id);
+      console.log('User sockets updated:', this.userSockets.get(userId)?.size);
 
       // Store userId in socket data
       (socket as any).userId = userId;
@@ -141,8 +145,13 @@ export class ConnectionManager {
   }
 
   isUserOnline(userId: string): boolean {
+    console.log('isUserOnline called with userId:', userId);
+    console.log('Current userSockets map:', Array.from(this.userSockets.entries()));
     const sockets = this.userSockets.get(userId);
-    return sockets ? sockets.size > 0 : false;
+    console.log('Sockets for user:', sockets);
+    const isOnline = sockets ? sockets.size > 0 : false;
+    console.log('isOnline result:', isOnline);
+    return isOnline;
   }
 
   getOnlineUsers(): string[] {

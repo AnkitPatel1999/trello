@@ -109,13 +109,18 @@ class NotificationServer {
   private setupWebSocket(): void {
     this.io.on('connection', (socket) => {
       console.log('Client connected:', socket.id);
+      console.log('Socket handshake:', socket.handshake.headers);
 
       // Handle user authentication and join
       socket.on('join', async (data: { userId: string }) => {
         try {
+          console.log('User join request:', data);
           const connectionManager = (global as any).connectionManager;
           if (connectionManager) {
             await connectionManager.handleUserJoin(socket, data.userId);
+            console.log('User successfully joined:', data.userId);
+          } else {
+            console.error('ConnectionManager not available');
           }
         } catch (error) {
           console.error('Failed to handle user join:', error);

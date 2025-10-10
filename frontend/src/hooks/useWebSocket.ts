@@ -24,7 +24,7 @@ export const useWebSocket = () => {
     if (!user) return;
 
     // Initialize socket connection
-    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001', {
+    const newSocket = io('http://localhost:3001', {
       transports: ['websocket'],
       autoConnect: true,
     });
@@ -34,10 +34,11 @@ export const useWebSocket = () => {
 
     // Connection event handlers
     newSocket.on('connect', () => {
-      console.log('WebSocket connected');
+      console.log('WebSocket connected:', newSocket.id);
       setIsConnected(true);
       
       // Join user room
+      console.log('Joining user room:', user.id);
       newSocket.emit('join', { userId: user.id });
     });
 
@@ -50,6 +51,14 @@ export const useWebSocket = () => {
     newSocket.on('notification', (notification: Notification) => {
       console.log('Received notification:', notification);
       setNotifications(prev => [notification, ...prev]);
+    });
+
+    newSocket.on('error', (error: any) => {
+      console.error('WebSocket error:', error);
+    });
+
+    newSocket.on('connect_error', (error: any) => {
+      console.error('WebSocket connection error:', error);
     });
 
     newSocket.on('notification_read', (data: { notificationId: string; readAt: string }) => {

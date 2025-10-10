@@ -58,25 +58,34 @@ export class TaskNotificationService {
       // Get all users in the project (assuming project has collaborators)
       // For now, we'll get all users - you can modify this based on your project structure
       const allUsers = await User.find({});
+
+      console.log('allUsers', allUsers);
       
       const notificationTitle = 'Task Moved';
       const notificationMessage = `${mover.name} moved task "${task.title}" from ${fromStatus} to ${toStatus}`;
-      
+      console.log('notificationTitle', notificationTitle);
+      console.log('notificationMessage', notificationMessage);
       // Process notifications for each user
       for (const user of allUsers) {
         // Skip the user who moved the task
+        console.log('user', user._id.toString());
+        console.log('movedByUserId', movedByUserId);
         if (user._id.toString() === movedByUserId) {
           continue;
         }
+        console.log('isOnline 1 ');
+        console.log('connectionManager:', this.connectionManager);
+        console.log('connectionManager.isUserOnline:', typeof this.connectionManager.isUserOnline);
 
         const isOnline = this.connectionManager.isUserOnline(user._id.toString());
-        
+        console.log('isOnline', isOnline);
         if (isOnline) {
-          // Send real-time notification via WebSocket
-          await this.sendRealtimeNotification(user._id.toString(), {
+          // Create notification record first
+          const notificationRecord = await this.notificationService.createNotification({
+            userId: user._id.toString(),
+            type: NotificationType.TASK_MOVED,
             title: notificationTitle,
             message: notificationMessage,
-            type: NotificationType.TASK_MOVED,
             data: {
               taskId: task._id.toString(),
               taskTitle: task.title,
@@ -88,8 +97,17 @@ export class TaskNotificationService {
               toStatus,
               movedAt: new Date().toISOString(),
             },
+            channels: ['UI'],
+            metadata: {
+              priority: 'normal',
+            },
           });
+
+          console.log('notificationRecord', notificationRecord);
+          // Send real-time notification via WebSocket
+          await this.notificationHandler.sendNotificationToUser(user._id.toString(), notificationRecord);
         } else {
+          console.log('Sending email notification for offline user');
           // Send email notification for offline users
           await this.sendEmailNotification(user, {
             title: notificationTitle,
@@ -140,17 +158,6 @@ export class TaskNotificationService {
     }
   }
 
-  private async sendRealtimeNotification(userId: string, notification: any): Promise<void> {
-    try {
-      await this.notificationHandler.sendNotificationToUser(userId, notification);
-      logger.info('Real-time notification sent', { userId, notificationId: notification.id });
-    } catch (error) {
-      logger.error('Failed to send real-time notification', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        userId,
-      });
-    }
-  }
 
   private async sendEmailNotification(user: any, notification: any): Promise<void> {
     try {
