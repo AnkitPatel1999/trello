@@ -13,26 +13,36 @@ interface TaskProps {
 const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
   console.log('Task rendering:', card.id);
 
-  const handleMove = useCallback((newStatus: Status) => {
-    onMove(card.id, newStatus);
+  const handleMove = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    onMove(card.id, e.target.value as Status);
   }, [card.id, onMove]);
+
+  const initials = card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
 
   return (
     <div className="task-card">
-      <h4>{card.title}</h4>
-      {card.description && <p>{card.description}</p>}
-      
-      {/* Your task content */}
-      
-      <div className="task-actions">
-        <select 
-          value={card.status} 
-          onChange={(e) => handleMove(e.target.value as Status)}
-        >
-          {allStatuses.map(status => (
-            <option key={status} value={status}>
-              {status}
-            </option>
+      <div className="task-header">
+        <div className="task-icon">
+          {initials}
+        </div>
+        <div className="task-title">{card.title}</div>
+      </div>
+
+      {card.subtitles && card.subtitles.length > 0 && (
+        <ul className="task-subtitles">
+          {card.subtitles.map((subtitle, index) => (
+            <li key={index} className="task-subtitle">
+              {subtitle}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="task-move">
+        <label>Move to</label>
+        <select value={card.status} onChange={handleMove}>
+          {allStatuses.map(s => (
+            <option key={s} value={s}>{s}</option>
           ))}
         </select>
       </div>
