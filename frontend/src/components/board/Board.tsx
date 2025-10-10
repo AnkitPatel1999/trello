@@ -107,7 +107,7 @@ const Board = () => {
                   title={cfg.title}
                   color={cfg.badgeColor}
                   cards={cfg.cards}
-                  allStatuses={ALL_STATUSES}
+                  allStatuses={ALL_STATUSES as Status[]}
                   onAdd={() => handleOpenModal(cfg.key)}
                   onMove={handleMove}
                 />

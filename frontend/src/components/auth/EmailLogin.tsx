@@ -21,7 +21,7 @@ const EmailLogin = ({ onOtpSent }: EmailLoginProps) => {
     }
 
     try {
-      const result = await dispatch(sendOtp(email.trim()));
+      const result = await dispatch(sendOtp(email.trim()) as any);
       if (sendOtp.fulfilled.match(result)) {
         onOtpSent();
       }

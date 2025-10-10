@@ -69,7 +69,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
     }
 
     try {
-      const result = await dispatch(verifyOtp({ email, otp: otpString }));
+      const result = await dispatch(verifyOtp({ email, otp: otpString }) as any);
       
       if (verifyOtp.fulfilled.match(result)) {
         // Simple redirect to dashboard
@@ -87,7 +87,7 @@ const OTPVerification = ({ onBack, onSuccess }: OTPVerificationProps) => {
   const handleResend = async () => {
     if (!email) return;
     try {
-      await dispatch(sendOtp(email));
+      await dispatch(sendOtp(email) as any);
     } catch (error) {
       console.error('Resend OTP failed:', error);
     }
