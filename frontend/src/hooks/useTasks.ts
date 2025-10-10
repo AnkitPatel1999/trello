@@ -3,16 +3,18 @@ import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { apiService } from '../services/api';
 import type { Card } from '../domain/types';
-import { setCards, addCard, updateCard, deleteCard, setLoading, setError } from '../store/cardsSlice';
+import { setCards, addCard, updateCard, deleteCard } from '../store/cardsSlice';
 import type { RootState } from '../store';
 
+/**
+ * Hook for task CRUD operations
+ * Can be used in any component without triggering data fetch
+ */
 export const useTasks = () => {
   const dispatch = useDispatch();
   const tasks = useSelector((state: RootState) => state.cards.cards);
-  const loading = useSelector((state: RootState) => state.cards.loading);
-  const error = useSelector((state: RootState) => state.cards.error);
 
-  // ✅ Memoize updateTask to prevent recreating on every render
+  // ✅ Memoize updateTask
   const updateTask = useCallback(async (id: string, updates: Partial<Card>) => {
     try {
       const response = await apiService.updateTask(id, updates);
@@ -25,7 +27,7 @@ export const useTasks = () => {
   }, [dispatch]);
 
   // ✅ Memoize createTask
-  const createTask = useCallback(async (taskData: Partial<Card>) => {
+  const createTask = useCallback(async (taskData: Omit<Card, 'id'>) => {
     try {
       const response = await apiService.createTask(taskData);
       dispatch(addCard(response));
@@ -47,12 +49,22 @@ export const useTasks = () => {
     }
   }, [dispatch]);
 
+  // ✅ Manual refresh function (optional)
+  const refreshTasks = useCallback(async () => {
+    try {
+      const response = await apiService.getTasks();
+      dispatch(setCards(response));
+    } catch (err) {
+      console.error('Refresh tasks error:', err);
+      throw err;
+    }
+  }, [dispatch]);
+
   return {
     tasks,
-    loading,
-    error,
     updateTask,
     createTask,
-    deleteTask
+    deleteTask,
+    refreshTasks
   };
 };

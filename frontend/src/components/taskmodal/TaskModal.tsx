@@ -1,6 +1,8 @@
+// TaskModal.tsx - Keep as is, just use useTasks
 import React, { useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
-import { useTasks } from '../../hooks/useTasks';
+import { useTasks } from '../../hooks/useTasks'; // ✅ This won't trigger fetch anymore
 import { Status } from '../../domain/status';
 import type { RootState } from '../../store';
 import './taskmodal.css';
@@ -12,14 +14,15 @@ interface TaskModalProps {
 }
 
 const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
-    // ✅ ALL HOOKS FIRST - before any conditions
     const [taskTitle, setTaskTitle] = useState<string>('');
     const [taskDescription, setTaskDescription] = useState<string>('');
     const [subTaskInput, setSubTaskInput] = useState<string>('');
     const [subTasks, setSubTasks] = useState<string[]>([]);
     const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState(false);
 
-    const { createTask, loading } = useTasks();
+    // ✅ This now only gets CRUD operations, doesn't fetch
+    const { createTask } = useTasks();
     const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
 
     // Reset form when modal closes
@@ -33,7 +36,6 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
         }
     }, [open]);
 
-    // Memoize callbacks
     const handleAddSubTask = useCallback(() => {
         if (subTaskInput.trim()) {
             setSubTasks(prev => [...prev, subTaskInput.trim()]);
@@ -55,6 +57,7 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
     const handleCreateTask = useCallback(async () => {
         if (taskTitle.trim()) {
             setError('');
+            setLoading(true);
             try {
                 await createTask({
                     title: taskTitle.trim(),
@@ -66,16 +69,17 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                 onClose();
             } catch (err: any) {
                 setError(err.message || 'Failed to create task');
+            } finally {
+                setLoading(false);
             }
         }
     }, [taskTitle, taskDescription, status, activeProjectId, subTasks, createTask, onClose]);
 
     const canCreateTask = taskTitle.trim().length > 0;
 
-    // ✅ NOW check if modal should render - AFTER all hooks
     if (!open) return null;
 
-    return (
+    return createPortal(
         <>
             <div className="task-modal-backdrop" onClick={onClose} />
             <div className="task-modal">
@@ -164,7 +168,8 @@ const TaskModal = ({ open, onClose, status }: TaskModalProps) => {
                     </button>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     );
 };
 

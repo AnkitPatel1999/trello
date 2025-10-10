@@ -1,3 +1,4 @@
+// frontend/src/components/board/Board.tsx
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
@@ -5,6 +6,7 @@ import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import { useTasks } from '../../hooks/useTasks';
+import { useTasksData } from '../../hooks/useTasksData'; // ✅ New import
 import type { RootState } from '../../store';
 import './board.css';
 
@@ -13,7 +15,12 @@ import right_icon from "../../assets/icons/right_icon.svg"
 
 const Board = () => {
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
-  const { tasks, loading, error, updateTask } = useTasks();
+  
+  // ✅ Fetch data once at this level
+  const { loading, error } = useTasksData();
+  
+  // ✅ Get tasks and operations (no fetching here)
+  const { tasks, updateTask } = useTasks();
 
   // Memoize filtered cards
   const cards = useMemo(() => 
@@ -33,7 +40,7 @@ const Board = () => {
     return grouped;
   }, [cards]);
 
-  // ✅ Fix: Include updateTask in dependencies
+  // Memoize move handler
   const handleMove = useCallback(async (id: string, to: Status) => {
     try {
       await updateTask(id, { status: to });
