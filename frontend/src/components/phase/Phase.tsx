@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+// frontend/src/components/phase/Phase.tsx
+import React, { useState, useCallback, memo } from 'react';
 import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
@@ -15,10 +16,11 @@ type PhaseProps = {
   onMove: (id: string, to: Status) => void;
 };
 
-const Phase = ({ title, color, cards, allStatuses, status, onMove }: PhaseProps) => {
+const Phase = memo(({ title, color, cards, allStatuses, status, onMove }: PhaseProps) => {
+  console.log('Phase rendering:', title);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ✅ Memoize handlers
   const handleAdd = useCallback(() => {
     setIsModalOpen(true);
   }, []);
@@ -52,7 +54,6 @@ const Phase = ({ title, color, cards, allStatuses, status, onMove }: PhaseProps)
         </div>
       </section>
 
-      {/* ✅ Fix: Remove {true &&}, just use conditional */}
       {isModalOpen && (
         <TaskModal 
           open={isModalOpen}
@@ -62,6 +63,15 @@ const Phase = ({ title, color, cards, allStatuses, status, onMove }: PhaseProps)
       )}
     </>
   );
-};
+}, (prevProps, nextProps) => {
+  // ✅ Only re-render if cards array reference or length changed
+  return (
+    prevProps.cards === nextProps.cards &&
+    prevProps.title === nextProps.title &&
+    prevProps.onMove === nextProps.onMove
+  );
+});
+
+Phase.displayName = 'Phase';
 
 export default Phase;

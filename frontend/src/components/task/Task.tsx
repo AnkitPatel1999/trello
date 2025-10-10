@@ -1,52 +1,56 @@
-import React from 'react';
-import type { Card } from '../../domain/types';
+// frontend/src/components/task/Task.tsx
+import React, { memo, useCallback } from 'react';
 import { Status } from '../../domain/status';
+import type { Card } from '../../domain/types';
 import './task.css';
 
-type TaskProps = {
+interface TaskProps {
   card: Card;
   allStatuses: Status[];
   onMove: (id: string, to: Status) => void;
-};
+}
 
-const Task = ({ card, allStatuses, onMove }: TaskProps) => {
-  console.log('Task rendering');
-  
-  const handleMove = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onMove(card.id, e.target.value as Status);
-  };
+const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
+  console.log('Task rendering:', card.id);
 
-  const initials = card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  const handleMove = useCallback((newStatus: Status) => {
+    onMove(card.id, newStatus);
+  }, [card.id, onMove]);
 
   return (
     <div className="task-card">
-      <div className="task-header">
-        <div className="task-icon">
-          {initials}
-        </div>
-        <div className="task-title">{card.title}</div>
-      </div>
+      <h4>{card.title}</h4>
+      {card.description && <p>{card.description}</p>}
       
-      {card.subtitles && card.subtitles.length > 0 && (
-        <ul className="task-subtitles">
-          {card.subtitles.map((subtitle, index) => (
-            <li key={index} className="task-subtitle">
-              {subtitle}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Your task content */}
       
-      <div className="task-move">
-        <label>Move to</label>
-        <select value={card.status} onChange={handleMove}>
-          {allStatuses.map(s => (
-            <option key={s} value={s}>{s}</option>
+      <div className="task-actions">
+        <select 
+          value={card.status} 
+          onChange={(e) => handleMove(e.target.value as Status)}
+        >
+          {allStatuses.map(status => (
+            <option key={status} value={status}>
+              {status}
+            </option>
           ))}
         </select>
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // ✅ Custom comparison function
+  // Only re-render if card data actually changed
+  return (
+    prevProps.card.id === nextProps.card.id &&
+    prevProps.card.title === nextProps.card.title &&
+    prevProps.card.description === nextProps.card.description &&
+    prevProps.card.status === nextProps.card.status &&
+    prevProps.card.subtitles === nextProps.card.subtitles &&
+    prevProps.onMove === nextProps.onMove
+  );
+});
+
+Task.displayName = 'Task';
 
 export default Task;

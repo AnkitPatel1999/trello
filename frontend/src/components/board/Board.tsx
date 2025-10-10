@@ -1,12 +1,12 @@
 // frontend/src/components/board/Board.tsx
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
 import { PHASES } from '../../domain/phases';
 import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import { useTasks } from '../../hooks/useTasks';
-import { useTasksData } from '../../hooks/useTasksData'; // ✅ New import
+import { useTasksData } from '../../hooks/useTasksData';
 import type { RootState } from '../../store';
 import './board.css';
 
@@ -16,11 +16,11 @@ import right_icon from "../../assets/icons/right_icon.svg"
 const Board = () => {
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   
-  // ✅ Fetch data once at this level
   const { loading, error } = useTasksData();
-  
-  // ✅ Get tasks and operations (no fetching here)
   const { tasks, updateTask } = useTasks();
+
+  // ✅ Memoize ALL_STATUSES to prevent recreation
+  const allStatusesRef = useRef(ALL_STATUSES as Status[]);
 
   // Memoize filtered cards
   const cards = useMemo(() => 
@@ -31,16 +31,19 @@ const Board = () => {
   // Memoize task count
   const taskCount = useMemo(() => cards.length, [cards]);
 
-  // Memoize cards grouped by status
+  // ✅ Memoize cards grouped by status with stable references
   const cardsByStatus = useMemo(() => {
     const grouped: Record<Status, Card[]> = {} as Record<Status, Card[]>;
+    
     PHASES.forEach(phase => {
-      grouped[phase.key] = cards.filter(card => card.status === phase.key);
+      const phaseCards = cards.filter(card => card.status === phase.key);
+      grouped[phase.key] = phaseCards;
     });
+    
     return grouped;
   }, [cards]);
 
-  // Memoize move handler
+  // ✅ Stable handleMove function
   const handleMove = useCallback(async (id: string, to: Status) => {
     try {
       await updateTask(id, { status: to });
@@ -49,10 +52,12 @@ const Board = () => {
     }
   }, [updateTask]);
 
-  // Simplified phase configurations
+  // ✅ Memoize phase configurations with stable array references
   const phaseConfigs = useMemo(() => 
     PHASES.map(cfg => ({
-      ...cfg,
+      key: cfg.key,
+      title: cfg.title,
+      badgeColor: cfg.badgeColor,
       cards: cardsByStatus[cfg.key] || []
     })),
     [cardsByStatus]
@@ -98,7 +103,7 @@ const Board = () => {
                 title={cfg.title}
                 color={cfg.badgeColor}
                 cards={cfg.cards}
-                allStatuses={ALL_STATUSES as Status[]}
+                allStatuses={allStatusesRef.current}
                 status={cfg.key}
                 onMove={handleMove}
               />
