@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import { logger } from '../../utils/logger';
 import { EmailTemplateService } from './EmailTemplateService';
 import { SendGridApiService } from './SendGridApiService';
+import { SendGridWebApiService } from './SendGridWebApiService';
 
 export interface IEmailOptions {
   to: string;
@@ -28,10 +29,12 @@ export class EmailService {
   private transporter!: nodemailer.Transporter;
   private templateService: EmailTemplateService;
   private sendGridApiService: SendGridApiService;
+  private sendGridWebApiService: SendGridWebApiService;
 
   constructor() {
     this.templateService = new EmailTemplateService();
     this.sendGridApiService = new SendGridApiService();
+    this.sendGridWebApiService = new SendGridWebApiService();
     this.initializeTransporter();
   }
 
@@ -81,20 +84,50 @@ export class EmailService {
         template: options.template,
       });
 
-      // Add timeout wrapper
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Email service timeout')), 8000); // 8 second timeout
-      });
-
-      const emailPromise = this.performSendEmail(options);
-      
+      // Try SendGrid Web API first (most reliable on Railway)
       try {
-        logger.info('Email service: Attempting SMTP send');
-        const result = await Promise.race([emailPromise, timeoutPromise]);
-        logger.info('Email service: SMTP send successful');
-        return result;
-      } catch (error) {
-        // If SMTP fails, try SendGrid API as fallback
+        logger.info('Email service: Attempting SendGrid Web API');
+        
+        const renderedTemplate = await this.templateService.renderTemplate(
+          options.template,
+          options.data
+        );
+        
+        const webApiResult = await this.sendGridWebApiService.sendEmail({
+          to: options.to,
+          subject: renderedTemplate.subject || options.subject,
+          html: renderedTemplate.html,
+          text: renderedTemplate.text || '',
+          from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
+        });
+        
+        if (webApiResult.success) {
+          logger.info('Email service: SendGrid Web API successful');
+          return webApiResult;
+        } else {
+          throw new Error(webApiResult.error);
+        }
+      } catch (webApiError) {
+        logger.warn('SendGrid Web API failed, trying SMTP fallback', {
+          error: webApiError instanceof Error ? webApiError.message : 'Unknown error',
+          to: options.to,
+          subject: options.subject,
+        });
+
+        // Fallback to SMTP
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Email service timeout')), 8000); // 8 second timeout
+        });
+
+        const emailPromise = this.performSendEmail(options);
+        
+        try {
+          logger.info('Email service: Attempting SMTP send');
+          const result = await Promise.race([emailPromise, timeoutPromise]);
+          logger.info('Email service: SMTP send successful');
+          return result;
+        } catch (error) {
+          // If SMTP fails, try SendGrid API as fallback
         logger.warn('SMTP email failed, trying SendGrid API fallback', {
           error: error instanceof Error ? error.message : 'Unknown error',
           to: options.to,
@@ -125,8 +158,9 @@ export class EmailService {
             throw new Error(apiResult.error);
           }
         } catch (apiError) {
-          // If both SMTP and API fail, return success with mock response
-          logger.warn('Email service: Both SMTP and SendGrid API failed, using mock response', {
+          // If all methods fail, return success with mock response
+          logger.warn('Email service: All methods failed (Web API, SMTP, REST API), using mock response', {
+            webApiError: webApiError instanceof Error ? webApiError.message : 'Unknown error',
             smtpError: error instanceof Error ? error.message : 'Unknown error',
             apiError: apiError instanceof Error ? apiError.message : 'Unknown error',
             to: options.to,
@@ -138,6 +172,7 @@ export class EmailService {
             success: true,
             messageId: `mock-${Date.now()}`,
           };
+        }
         }
       }
     } catch (error) {

@@ -90,6 +90,33 @@ class NotificationServer {
       });
     });
 
+    // Email test endpoint
+    this.app.get('/test-email', async (req, res) => {
+      try {
+        const { SendGridWebApiService } = await import('./services/email/SendGridWebApiService');
+        const emailService = new SendGridWebApiService();
+        
+        const result = await emailService.sendEmail({
+          to: 'test@example.com',
+          subject: 'Test Email from Railway',
+          html: '<h1>Test Email</h1><p>This is a test email from Railway.</p>',
+          text: 'Test Email - This is a test email from Railway.',
+          from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
+        });
+        
+        res.json({
+          success: result.success,
+          messageId: result.messageId,
+          error: result.error,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    });
+
     // API routes
     this.app.use(`/api/${config.apiVersion}`, routes);
 
