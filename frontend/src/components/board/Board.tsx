@@ -16,7 +16,7 @@ import right_icon from "../../assets/icons/right_icon.svg"
 const Board = () => {
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   
-  const { error } = useTasksData();
+  const { loading, error } = useTasksData();
   const { tasks, updateTask } = useTasks();
 
   // Memoize filtered cards
@@ -87,6 +87,7 @@ const Board = () => {
                 cards={cardsByStatus[cfg.key] || []}
                 status={cfg.key}
                 onMove={handleMove}
+                loading={loading}
               />
             ))}
           </div>

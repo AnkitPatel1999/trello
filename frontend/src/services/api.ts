@@ -3,14 +3,14 @@ import type { AuthResponse } from '../domain/auth';
 import type { Project, CreateProjectRequest } from '../domain/project';
 import type { Card } from '../domain/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 class ApiService {
   private api: AxiosInstance;
+  private API_BASE_URL = import.meta.env.VITE_API_URL;
 
   constructor() {
     this.api = axios.create({
-      baseURL: API_BASE_URL,
+      baseURL: this.API_BASE_URL,
       timeout: 15000, // Increased to 15 seconds
       headers: {
         'Content-Type': 'application/json',

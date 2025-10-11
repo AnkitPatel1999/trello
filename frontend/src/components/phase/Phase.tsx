@@ -4,7 +4,6 @@ import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
 import TaskModal from '../taskmodal/TaskModal';
-import { useTasksData } from '../../hooks/useTasksData';
 import "./phase.css";
 import plus from "../../assets/icons/plus.svg"
 
@@ -15,11 +14,11 @@ type PhaseProps = {
   status: Status;
   fontColor: string;
   onMove: (id: string, to: Status) => void;
+  loading: boolean;
 };
 
-const Phase = memo(({ title, color, fontColor, cards, status, onMove }: PhaseProps) => {
+const Phase = memo(({ title, color, fontColor, cards, status, onMove,loading }: PhaseProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { loading } = useTasksData();
 
   const handleAdd = useCallback(() => {
     setIsModalOpen(true);
