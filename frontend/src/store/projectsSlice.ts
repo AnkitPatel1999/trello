@@ -1,7 +1,7 @@
 // frontend/src/store/projectsSlice.ts
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Project, CreateProjectRequest } from '../domain/project';
+import type { Project } from '../domain/project';
 
 type ProjectsState = {
   projects: Project[];

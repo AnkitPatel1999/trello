@@ -1,5 +1,4 @@
 // frontend/src/components/leftsidebar/LeftSidebar.tsx
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveProject } from '../../store/projectsSlice';
 import { useProjects } from '../../hooks/useProjects';
