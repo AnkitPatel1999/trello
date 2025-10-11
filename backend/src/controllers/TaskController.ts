@@ -5,6 +5,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { logger } from '../utils/logger';
 import { Task } from '../models/Task.model';
 import { Project } from '../models/Project.model';
+import { User } from '../models/User.model';
 import { generateId } from '../utils/helpers';
 import { TaskNotificationService } from '../services/TaskNotificationService';
 
@@ -35,6 +36,10 @@ export class TaskController {
         userId,
       });
 
+      // Get user information for the creator
+      const user = await User.findById(userId).select('name email');
+      const createdBy = user?.name || user?.email || 'Unknown';
+
       logger.info('Task created', { taskId: task._id, userId, projectId, title });
 
       ApiResponse.created(res, 'Task created successfully', {
@@ -44,6 +49,7 @@ export class TaskController {
         subtitles: task.subtitles,
         status: task.status,
         projectId: task.projectId,
+        createdBy,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
       });
@@ -81,18 +87,27 @@ export class TaskController {
 
       const tasks = await Task.find(filter)
         .sort({ createdAt: -1 })
-        .select('_id title description subtitles status projectId createdAt updatedAt');
+        .select('_id title description subtitles status projectId userId createdAt updatedAt');
 
-      const formattedTasks = tasks.map(task => ({
-        id: task._id,
-        title: task.title,
-        description: task.description,
-        subtitles: task.subtitles,
-        status: task.status,
-        projectId: task.projectId,
-        createdAt: task.createdAt,
-        updatedAt: task.updatedAt,
-      }));
+      // Get user information for each task
+      const userIds = [...new Set(tasks.map(task => task.userId))];
+      const users = await User.find({ _id: { $in: userIds } }).select('_id name email');
+      const userMap = new Map(users.map(user => [user._id.toString(), user]));
+
+      const formattedTasks = tasks.map(task => {
+        const creator = userMap.get(task.userId);
+        return {
+          id: task._id,
+          title: task.title,
+          description: task.description,
+          subtitles: task.subtitles,
+          status: task.status,
+          projectId: task.projectId,
+          createdBy: creator?.name || creator?.email || 'Unknown',
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        };
+      });
 
       ApiResponse.success(res, 'Tasks retrieved successfully', formattedTasks);
     } catch (error) {
@@ -251,18 +266,27 @@ export class TaskController {
 
       const tasks = await Task.find({ projectId, userId })
         .sort({ createdAt: -1 })
-        .select('_id title description subtitles status projectId createdAt updatedAt');
+        .select('_id title description subtitles status projectId userId createdAt updatedAt');
 
-      const formattedTasks = tasks.map(task => ({
-        id: task._id,
-        title: task.title,
-        description: task.description,
-        subtitles: task.subtitles,
-        status: task.status,
-        projectId: task.projectId,
-        createdAt: task.createdAt,
-        updatedAt: task.updatedAt,
-      }));
+      // Get user information for each task
+      const userIds = [...new Set(tasks.map(task => task.userId))];
+      const users = await User.find({ _id: { $in: userIds } }).select('_id name email');
+      const userMap = new Map(users.map(user => [user._id.toString(), user]));
+
+      const formattedTasks = tasks.map(task => {
+        const creator = userMap.get(task.userId);
+        return {
+          id: task._id,
+          title: task.title,
+          description: task.description,
+          subtitles: task.subtitles,
+          status: task.status,
+          projectId: task.projectId,
+          createdBy: creator?.name || creator?.email || 'Unknown',
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        };
+      });
 
       ApiResponse.success(res, 'Project tasks retrieved successfully', formattedTasks);
     } catch (error) {

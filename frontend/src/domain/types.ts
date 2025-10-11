@@ -7,6 +7,9 @@ export interface Card {
   subtitles?: string[];
   status: Status;
   projectId: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 

@@ -23,7 +23,7 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
   const initials = card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
 
   return (
-    <div className="task-card">
+    <div className="task-card" title={isSuperUser ? `Created by: ${card.createdBy || 'Unknown'} on ${new Date(card.createdAt || '').toLocaleString()}` : undefined}>
       <div className="task-header">
         <div className="task-icon">
           {initials}
