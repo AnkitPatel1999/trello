@@ -27,7 +27,7 @@ export const useWebSocket = () => {
     if (!user) return;
 
     // Initialize socket connection
-    const newSocket = io(import.meta.env.VITE_WS_URL || 'http://localhost:3001', {
+    const newSocket = io(import.meta.env.API_END_POINT || 'http://localhost:3001', {
       transports: ['websocket'],
       autoConnect: true,
       timeout: 10000, // 10 seconds timeout
@@ -88,7 +88,7 @@ export const useWebSocket = () => {
 
     newSocket.on('connect_error', (error: any) => {
       console.error('WebSocket connection error:', error);
-      console.log('Attempting to connect to:', import.meta.env.VITE_WS_URL || 'http://localhost:3001');
+      console.log('Attempting to connect to:', import.meta.env.API_END_POINT || 'http://localhost:3001');
     });
 
     newSocket.on('notification_read', (data: { notificationId: string; readAt: string }) => {
