@@ -36,7 +36,7 @@ class NotificationServer {
     this.server = createServer(this.app);
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: "*",
+        origin: "true",
         methods: ["GET", "POST"]
       }
     });
@@ -70,7 +70,7 @@ class NotificationServer {
     
     // CORS middleware
     this.app.use(cors({
-      origin: '*',
+      origin: 'true',
       credentials: true,
     }));
 
