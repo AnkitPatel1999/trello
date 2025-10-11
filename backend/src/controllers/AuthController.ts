@@ -68,6 +68,11 @@ export class AuthController {
           error: emailError instanceof Error ? emailError.message : 'Unknown error',
           message: 'Check server logs for OTP. Configure email service for production.'
         });
+        
+        // Also log the OTP prominently for easy access
+        console.log('='.repeat(50));
+        console.log(`🔐 OTP FOR ${email}: ${otp}`);
+        console.log('='.repeat(50));
       }
 
       ApiResponse.success(res, 'OTP sent successfully');

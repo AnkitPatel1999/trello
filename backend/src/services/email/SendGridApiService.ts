@@ -32,6 +32,14 @@ export class SendGridApiService {
         throw new Error('SendGrid API key not configured');
       }
 
+      if (!this.apiKey.startsWith('SG.')) {
+        throw new Error('Invalid SendGrid API key format');
+      }
+
+      if (!this.fromEmail) {
+        throw new Error('SendGrid from email not configured');
+      }
+
       const payload = {
         personalizations: [
           {
@@ -59,6 +67,14 @@ export class SendGridApiService {
         });
       }
 
+      logger.info('Sending email via SendGrid API', {
+        to: options.to,
+        subject: options.subject,
+        fromEmail: this.fromEmail,
+        fromName: this.fromName,
+        payloadSize: JSON.stringify(payload).length,
+      });
+
       const response = await axios.post(
         'https://api.sendgrid.com/v3/mail/send',
         payload,
@@ -70,6 +86,13 @@ export class SendGridApiService {
           timeout: 10000, // 10 second timeout
         }
       );
+
+      logger.info('SendGrid API response received', {
+        status: response.status,
+        statusText: response.statusText,
+        messageId: response.headers['x-message-id'],
+        rateLimitRemaining: response.headers['x-ratelimit-remaining'],
+      });
 
       logger.info('Email sent successfully via SendGrid API', {
         to: options.to,
@@ -86,6 +109,14 @@ export class SendGridApiService {
         error: error instanceof Error ? error.message : 'Unknown error',
         to: options.to,
         subject: options.subject,
+        apiKey: this.apiKey ? 'Present' : 'Missing',
+        fromEmail: this.fromEmail,
+        fromName: this.fromName,
+        axiosError: error instanceof Error && 'response' in error ? {
+          status: (error as any).response?.status,
+          statusText: (error as any).response?.statusText,
+          data: (error as any).response?.data,
+        } : null,
       });
 
       return {

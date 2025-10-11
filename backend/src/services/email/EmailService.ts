@@ -75,6 +75,12 @@ export class EmailService {
 
   async sendEmail(options: IEmailOptions): Promise<IEmailResult> {
     try {
+      logger.info('Email service: Starting email send process', {
+        to: options.to,
+        subject: options.subject,
+        template: options.template,
+      });
+
       // Add timeout wrapper
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Email service timeout')), 8000); // 8 second timeout
@@ -83,7 +89,10 @@ export class EmailService {
       const emailPromise = this.performSendEmail(options);
       
       try {
-        return await Promise.race([emailPromise, timeoutPromise]);
+        logger.info('Email service: Attempting SMTP send');
+        const result = await Promise.race([emailPromise, timeoutPromise]);
+        logger.info('Email service: SMTP send successful');
+        return result;
       } catch (error) {
         // If SMTP fails, try SendGrid API as fallback
         logger.warn('SMTP email failed, trying SendGrid API fallback', {
@@ -93,6 +102,8 @@ export class EmailService {
         });
         
         try {
+          logger.info('Email service: Attempting SendGrid API fallback');
+          
           // Render template for API call
           const renderedTemplate = await this.templateService.renderTemplate(
             options.template,
@@ -108,20 +119,21 @@ export class EmailService {
           });
           
           if (apiResult.success) {
-            logger.info('Email sent successfully via SendGrid API fallback');
+            logger.info('Email service: SendGrid API fallback successful');
             return apiResult;
           } else {
             throw new Error(apiResult.error);
           }
         } catch (apiError) {
           // If both SMTP and API fail, return success with mock response
-          logger.warn('Both SMTP and SendGrid API failed, using mock response', {
+          logger.warn('Email service: Both SMTP and SendGrid API failed, using mock response', {
             smtpError: error instanceof Error ? error.message : 'Unknown error',
             apiError: apiError instanceof Error ? apiError.message : 'Unknown error',
             to: options.to,
             subject: options.subject,
           });
           
+          logger.info('Email service: Mock response generated successfully');
           return {
             success: true,
             messageId: `mock-${Date.now()}`,
