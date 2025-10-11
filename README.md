@@ -1,201 +1,175 @@
-# 🎯 Ticket Dashboard - Project Management System
+# 🎯 Trello-Style Project Management Dashboard
 
-A comprehensive Trello-style project management dashboard with email-based authentication, real-time notifications, and super-user controls.
+## ✨ Features
 
-## 🚀 Features
-
-### ✅ **Authentication System**
+### 🔐 **Authentication System**
 - **Email-based OTP login** (no password required)
 - Secure JWT token-based authentication
-- Automatic session management
+- Automatic session management and persistence
+- Protected routes with role-based access
 
-### ✅ **Project & Ticket Management**
-- **Project Dashboard** - Lists all projects with creation capability
-- **Ticket Management** - Create, update, move tickets across phases
-- **Real-time Updates** - Instant reflection of changes for all active users
-- **Drag & Drop Interface** - Intuitive ticket movement
+### 📋 **Project & Task Management**
+- **Project Dashboard** - Create, view, and manage multiple projects
+- **Task CRUD Operations** - Create, read, delete tasks
+- **Real-time Updates** - Instant synchronization across all connected users
+- **Phase Management** - workflow phases (Proposed, Todo, In Progress, Done, Deployed)
 
-### ✅ **Super-User Controls**
-- **Toggle Switch** - Enable/disable super-user mode
-- **Password Protection** - Secure password prompt for admin access
-- **Enhanced View** - Shows creation/update timestamps when enabled
-- **Conditional Rendering** - Hides user info when disabled
+### 👑 **Super-User Controls**
+- **Admin Toggle** - Secure password-protected super-user mode
+- **Enhanced Metadata** - View creation/update timestamps and user information
 
-### ✅ **Notifications & Updates**
-- **Real-time Activity Feed** - Live notifications for active users
-- **Email Notifications** - Automatic emails for offline users
+### 🔔 **Real-time Notifications**
+- **Live Activity Feed** - Real-time notifications for active users
+- **Email Notifications** - Automatic email delivery for offline users
 - **WebSocket Integration** - Instant updates across all connected clients
 - **Notification Center** - Centralized notification management
+- **Multi-channel Delivery** - Email, UI, and push notification support
 
-### ✅ **Backend Architecture**
-- **Node.js + TypeScript** - Type-safe backend implementation
-- **MongoDB Database** - NoSQL for flexible data structure
-- **Design Patterns**:
-  - **Strategy Pattern** - Notification delivery strategies (Email, UI, Push)
-  - **Factory Pattern** - NotificationStrategyFactory for strategy creation
-  - **Repository Pattern** - BaseRepository with specific implementations
-- **RESTful API** - Clean API design with proper error handling
 
-### ✅ **Frontend Architecture**
-- **React + TypeScript** - Type-safe frontend implementation
-- **Redux State Management** - Centralized state with RTK
-- **Real-time WebSocket** - Live updates and notifications
-- **Responsive Design** - Clean, modern UI with CSS modules
+## 🛠️ Technologies Used
 
-## 🏗️ **Architecture & Design Decisions**
+### **Backend Stack**
+- **Node.js** - JavaScript runtime environment
+- **Express.js** - Web application framework
+- **TypeScript** - Type-safe JavaScript development
+- **MongoDB** - NoSQL database with Mongoose ODM
+- **Socket.IO** - Real-time bidirectional communication
+- **JWT** - JSON Web Tokens for authentication
+- **SendGrid** - Email delivery service
 
-### **Database Choice: MongoDB (NoSQL)**
 
-**Why NoSQL over SQL:**
-- **Flexible Schema** - Easy to add new fields to tickets/projects without migrations
-- **JSON-like Structure** - Natural fit for JavaScript/TypeScript applications
-- **Scalability** - Better horizontal scaling for real-time features
-- **Document-based** - Perfect for nested data like ticket metadata
-- **Rapid Development** - Faster iteration without complex schema changes
+### **Frontend Stack**
+- **React 19** - Modern React with latest features
+- **TypeScript** - Type-safe frontend development
+- **Vite** - Fast build tool and development server
+- **Redux Toolkit** - Predictable state management
+- **React Router** - Client-side routing
+- **Axios** - HTTP client for API calls
+- **Socket.IO Client** - Real-time communication
 
-### **Design Patterns Implemented**
+## 🏗️ Architecture
 
-#### 1. **Strategy Pattern** - Notification System
-```typescript
-// Different notification delivery strategies
-- EmailNotificationStrategy
-- UINotificationStrategy  
-- PushNotificationStrategy
+```mermaid
+graph TD
+    subgraph Frontend
+        A[React Components] --> B[Redux Store]
+        B --> C[API Service]
+        C --> D[Socket.IO Client]
+        A --> E[Custom Hooks]
+        E --> F[WebSocket Hook]
+    end
+
+    subgraph Backend
+        G[Express Server] --> H[Controllers]
+        H --> I[Services]
+        I --> J[Models]
+        J --> K[MongoDB]
+        H --> L[Socket.IO Server]
+        I --> M[Notification Service]
+        M --> N[Email Service]
+        M --> O[Queue Manager]
+    end
+
+    A -- Renders --> A
+    C -- HTTP Requests --> G
+    D -- Real-time Communication --> L
+    L -- Real-time Events --> D
+    M -- Email Delivery --> P[SendGrid]
+    O -- Background Jobs --> Q[Redis Queue]
 ```
 
-#### 2. **Factory Pattern** - Strategy Creation
-```typescript
-// NotificationStrategyFactory creates appropriate strategy
-const strategy = factory.getStrategy(DeliveryChannel.EMAIL);
-```
-
-#### 3. **Repository Pattern** - Data Access
-```typescript
-// BaseRepository with specific implementations
-- NotificationRepository
-- UserRepository
-- UserSessionRepository
-```
-
-## 🛠️ **Technology Stack**
-
-### **Backend**
-- **Runtime**: Node.js
-- **Language**: TypeScript
-- **Framework**: Express.js
-- **Database**: MongoDB
-- **Authentication**: JWT
-- **Email Service**: SendGrid (with fallback strategies)
-- **Real-time**: Socket.IO
-- **Validation**: Custom middleware
-
-### **Frontend**
-- **Framework**: React 18
-- **Language**: TypeScript
-- **State Management**: Redux Toolkit
-- **Styling**: CSS Modules
-- **Real-time**: Socket.IO Client
-- **HTTP Client**: Axios
-- **Routing**: React Router
-
-## 📁 **Project Structure**
-
-```
-trello/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/     # API controllers
-│   │   ├── models/          # MongoDB models
-│   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic
-│   │   ├── strategies/      # Design patterns
-│   │   ├── repositories/    # Data access layer
-│   │   ├── middlewares/     # Express middlewares
-│   │   ├── websocket/       # Real-time functionality
-│   │   └── utils/           # Helper functions
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── store/           # Redux store
-│   │   ├── services/        # API services
-│   │   ├── domain/          # TypeScript types
-│   │   └── pages/           # Page components
-│   └── package.json
-└── README.md
-```
-
-## 🚀 **Getting Started**
+## 🚀 Getting Started
 
 ### **Prerequisites**
-- Node.js (v16+)
-- MongoDB
-- SendGrid account (for email)
+- Node.js (v18 or later)
+- MongoDB (local or Atlas)
+- SendGrid account (for email notifications)
+- Git
 
-### **Backend Setup**
-```bash
-cd backend
-npm install
-npm run dev
-```
+### **Installation**
 
-### **Frontend Setup**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/AnkitPatel1999/trello.git
+   cd trello
+   ```
+
+2. **Backend Setup:**
+   ```bash
+   cd backend
+   npm install
+   # Edit .env with your configuration
+   npm run dev
+   ```
+
+3. **Frontend Setup:**
+   ```bash
+   cd frontend
+   npm install
+   # Edit .env with your API URL
+   npm run dev
+   ```
 
 ### **Environment Variables**
 
-**Backend (.env)**
+**Backend (.env):**
 ```env
+# Server Configuration
+NODE_ENV=development
 PORT=3001
+API_VERSION=v1
+
+# Database Configuration
 MONGODB_URI=mongodb://localhost:27017/trello
-JWT_SECRET=your-jwt-secret
-SENDGRID_API_KEY=your-sendgrid-key
-SENDGRID_FROM_EMAIL=your-email@domain.com
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=7d
+
+# Email Configuration
+EMAIL_PROVIDER=sendgrid
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@yourapp.com
 SENDGRID_FROM_NAME=Your App Name
+
+# Super User Configuration
 SUPER_USER_PASSWORD=admin123
+
 ```
 
-**Frontend (.env)**
+**Frontend (.env):**
 ```env
 VITE_API_URL=http://localhost:3001/api/v1
 ```
 
-## 🎯 **Key Features Implementation**
+## 🎯 Key Features Implementation
 
 ### **1. Email-based Authentication**
-- OTP generation and validation
-- Secure token management
-- Session persistence
+- OTP generation and validation system
+- Secure token management with JWT
+- Session persistence across browser refreshes
 
-### **2. Real-time Updates**
+### **2. Real-time Collaboration**
 - WebSocket connection management
-- Live ticket movement notifications
-- User presence tracking
+- Live task movement notifications
 
 ### **3. Super-User Mode**
-- Password-protected toggle
-- Conditional UI rendering
-- Enhanced metadata display
+- Password-protected admin toggle
+- Conditional UI rendering based on permissions
 
 ### **4. Notification System**
 - Multi-channel delivery (Email, UI, Push)
 - Offline user email notifications
 - Real-time UI notifications
 
-## 🔒 **Security Features**
+## 🔒 Security Features
 
-- **JWT Authentication** - Secure token-based auth
+- **JWT Authentication** - Secure token-based authentication
 - **Password Protection** - Super-user mode security
-- **Input Validation** - Server-side validation
 - **CORS Configuration** - Secure cross-origin requests
-- **Rate Limiting** - API protection
+- **Environment Variables** - Sensitive data protection
 
-## 📱 **Deployment**
+## 📱 Deployment
 
 ### **Backend (Railway)**
 - Automatic deployment from GitHub
@@ -206,77 +180,3 @@ VITE_API_URL=http://localhost:3001/api/v1
 ### **Frontend (Vercel)**
 - Automatic deployment from GitHub
 - Environment variable configuration
-- CDN optimization
-- SSL certificate
-
-## 🧪 **Testing**
-
-### **Manual Testing**
-1. **Authentication Flow**
-   - Email OTP login
-   - Session persistence
-   - Logout functionality
-
-2. **Project Management**
-   - Create new projects
-   - View project details
-   - Ticket management
-
-3. **Super-User Mode**
-   - Toggle with password
-   - Enhanced view display
-   - Conditional rendering
-
-4. **Real-time Features**
-   - Live updates
-   - Notification system
-   - User presence
-
-## 🎨 **UI/UX Features**
-
-- **Clean Design** - Minimal, professional interface
-- **Responsive Layout** - Works on all devices
-- **Intuitive Navigation** - Easy-to-use interface
-- **Real-time Feedback** - Instant visual updates
-- **Accessibility** - Keyboard navigation support
-
-## 🔧 **Code Quality**
-
-- **TypeScript** - Full type safety
-- **ESLint** - Code linting
-- **Modular Architecture** - Clean separation of concerns
-- **Error Handling** - Comprehensive error management
-- **Logging** - Detailed application logging
-
-## 📊 **Performance**
-
-- **Optimized Rendering** - React.memo for performance
-- **Efficient State Management** - Redux with selectors
-- **WebSocket Optimization** - Connection pooling
-- **Database Indexing** - Optimized queries
-- **CDN Delivery** - Fast static asset delivery
-
-## 🚀 **Future Enhancements**
-
-- [ ] File upload functionality
-- [ ] Advanced filtering and search
-- [ ] Team collaboration features
-- [ ] Mobile app development
-- [ ] Advanced analytics
-- [ ] Integration with external tools
-
-## 📄 **License**
-
-This project is licensed under the MIT License.
-
-## 👥 **Contributing**
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
----
-
-**Built with ❤️ using modern web technologies**
