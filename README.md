@@ -25,6 +25,10 @@
 - **Notification Center** - Centralized notification management
 - **Multi-channel Delivery** - Email, UI, and push notification support
 
+## 🌐 Live Demo
+
+- **Frontend:** [https://trello-psi-cyan.vercel.app/](https://trello-psi-cyan.vercel.app/)
+- **Backend API:** [https://trello-production-298c.up.railway.app](https://trello-production-298c.up.railway.app)
 
 ## 🛠️ Technologies Used
 
@@ -47,36 +51,7 @@
 - **Axios** - HTTP client for API calls
 - **Socket.IO Client** - Real-time communication
 
-## 🏗️ Architecture
 
-```mermaid
-graph TD
-    subgraph Frontend
-        A[React Components] --> B[Redux Store]
-        B --> C[API Service]
-        C --> D[Socket.IO Client]
-        A --> E[Custom Hooks]
-        E --> F[WebSocket Hook]
-    end
-
-    subgraph Backend
-        G[Express Server] --> H[Controllers]
-        H --> I[Services]
-        I --> J[Models]
-        J --> K[MongoDB]
-        H --> L[Socket.IO Server]
-        I --> M[Notification Service]
-        M --> N[Email Service]
-        M --> O[Queue Manager]
-    end
-
-    A -- Renders --> A
-    C -- HTTP Requests --> G
-    D -- Real-time Communication --> L
-    L -- Real-time Events --> D
-    M -- Email Delivery --> P[SendGrid]
-    O -- Background Jobs --> Q[Redis Queue]
-```
 
 ## 🚀 Getting Started
 
