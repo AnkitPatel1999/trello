@@ -27,9 +27,14 @@ export const useWebSocket = () => {
     if (!user) return;
 
     // Initialize socket connection
-    const newSocket = io('http://localhost:3001', {
+    const newSocket = io(import.meta.env.VITE_WS_URL || 'http://localhost:3001', {
       transports: ['websocket'],
       autoConnect: true,
+      timeout: 10000, // 10 seconds timeout
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
 
     socketRef.current = newSocket;
@@ -45,8 +50,8 @@ export const useWebSocket = () => {
       newSocket.emit('join', { userId: user.id });
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
+    newSocket.on('disconnect', (reason) => {
+      console.log('WebSocket disconnected:', reason);
       setIsConnected(false);
     });
 
@@ -83,6 +88,7 @@ export const useWebSocket = () => {
 
     newSocket.on('connect_error', (error: any) => {
       console.error('WebSocket connection error:', error);
+      console.log('Attempting to connect to:', import.meta.env.VITE_WS_URL || 'http://localhost:3001');
     });
 
     newSocket.on('notification_read', (data: { notificationId: string; readAt: string }) => {
