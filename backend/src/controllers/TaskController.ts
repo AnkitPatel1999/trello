@@ -20,10 +20,10 @@ export class TaskController {
     const userId = req.user!.id;
 
     try {
-      // Verify project belongs to user
-      const project = await Project.findOne({ _id: projectId, userId, isActive: true });
+      // Remove user ownership check - allow creating tasks in any project
+      const project = await Project.findOne({ _id: projectId, isActive: true });
       if (!project) {
-        ApiResponse.badRequest(res, 'Project not found or access denied');
+        ApiResponse.badRequest(res, 'Project not found');
         return;
       }
 
@@ -65,17 +65,16 @@ export class TaskController {
   });
 
   getTasks = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user!.id;
     const { projectId, status } = req.query;
 
     try {
-      const filter: any = { userId };
+      const filter: any = {}; // Remove userId filter
       
       if (projectId) {
-        // Verify project belongs to user
-        const project = await Project.findOne({ _id: projectId, userId, isActive: true });
+        // Remove user ownership check - allow access to any project
+        const project = await Project.findOne({ _id: projectId, isActive: true });
         if (!project) {
-          ApiResponse.badRequest(res, 'Project not found or access denied');
+          ApiResponse.badRequest(res, 'Project not found');
           return;
         }
         filter.projectId = projectId;
@@ -113,8 +112,8 @@ export class TaskController {
     } catch (error) {
       logger.error('Failed to get tasks', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        userId,
         projectId,
+        status,
       });
       ApiResponse.internalServerError(res, 'Failed to retrieve tasks');
     }
@@ -122,11 +121,10 @@ export class TaskController {
 
   getTaskById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
-    const userId = req.user!.id;
 
     try {
-      const task = await Task.findOne({ _id: id, userId });
-
+      // Remove user ownership check
+      const task = await Task.findById(id);
       if (!task) {
         ApiResponse.notFound(res, 'Task not found');
         return;
@@ -146,7 +144,6 @@ export class TaskController {
       logger.error('Failed to get task', {
         error: error instanceof Error ? error.message : 'Unknown error',
         taskId: id,
-        userId,
       });
       ApiResponse.internalServerError(res, 'Failed to retrieve task');
     }
@@ -158,8 +155,8 @@ export class TaskController {
     const userId = req.user!.id;
 
     try {
-      // Get the current task to check if status is changing
-      const currentTask = await Task.findOne({ _id: id, userId });
+      // Remove user ownership check - allow any user to update any task
+      const currentTask = await Task.findById(id);
       if (!currentTask) {
         ApiResponse.notFound(res, 'Task not found');
         return;
@@ -173,8 +170,8 @@ export class TaskController {
       if (subtitles !== undefined) updateData.subtitles = subtitles;
       if (status !== undefined) updateData.status = status;
 
-      const task = await Task.findOneAndUpdate(
-        { _id: id, userId },
+      const task = await Task.findByIdAndUpdate(
+        id,
         updateData,
         { new: true }
       );

@@ -40,12 +40,11 @@ export class ProjectController {
   });
 
   getProjects = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user!.id;
-
     try {
-      const projects = await Project.find({ userId, isActive: true })
+      // Remove userId filter - show all active projects
+      const projects = await Project.find({ isActive: true })
         .sort({ createdAt: -1 })
-        .select('_id name description createdAt updatedAt isActive');
+        .select('_id name description createdAt updatedAt isActive userId');
 
       const formattedProjects = projects.map(project => ({
         id: project._id,
@@ -54,13 +53,13 @@ export class ProjectController {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         isActive: project.isActive,
+        createdBy: project.userId, // Add creator info
       }));
 
       ApiResponse.success(res, 'Projects retrieved successfully', formattedProjects);
     } catch (error) {
       logger.error('Failed to get projects', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        userId,
       });
       ApiResponse.internalServerError(res, 'Failed to retrieve projects');
     }
@@ -68,10 +67,10 @@ export class ProjectController {
 
   getProjectById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
-    const userId = req.user!.id;
 
     try {
-      const project = await Project.findOne({ _id: id, userId, isActive: true });
+      // Remove user ownership check
+      const project = await Project.findOne({ _id: id, isActive: true });
 
       if (!project) {
         ApiResponse.notFound(res, 'Project not found');
@@ -85,12 +84,12 @@ export class ProjectController {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         isActive: project.isActive,
+        createdBy: project.userId, // Add creator info
       });
     } catch (error) {
       logger.error('Failed to get project', {
         error: error instanceof Error ? error.message : 'Unknown error',
         projectId: id,
-        userId,
       });
       ApiResponse.internalServerError(res, 'Failed to retrieve project');
     }

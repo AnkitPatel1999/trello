@@ -12,4 +12,14 @@ export interface Card {
   updatedAt?: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  createdBy?: string; // Add this field
+}
+
 

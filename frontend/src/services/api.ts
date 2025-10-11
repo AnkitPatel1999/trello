@@ -93,8 +93,12 @@ class ApiService {
   }
 
   // Task APIs
-  async getTasks(): Promise<Card[]> {
-    const response: AxiosResponse<{ data: Card[] }> = await this.api.get('/tasks');
+  async getTasks(projectId?: string, status?: string): Promise<Card[]> {
+    const params = new URLSearchParams();
+    if (projectId) params.append('projectId', projectId);
+    if (status) params.append('status', status);
+    
+    const response: AxiosResponse<{ data: Card[] }> = await this.api.get(`/tasks?${params.toString()}`);
     return response.data.data;
   }
 

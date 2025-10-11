@@ -11,6 +11,7 @@ import type { RootState } from '../store';
  */
 export const useTasksData = () => {
   const dispatch = useDispatch();
+  const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   const loading = useSelector((state: RootState) => state.cards.loading);
   const error = useSelector((state: RootState) => state.cards.error);
 
@@ -19,7 +20,7 @@ export const useTasksData = () => {
       try {
         dispatch(setLoading(true));
         dispatch(setError(null));
-        const response = await apiService.getTasks();
+        const response = await apiService.getTasks(activeProjectId || undefined);
         dispatch(setCards(response));
       } catch (err: any) {
         console.error('Failed to fetch tasks:', err);
@@ -30,7 +31,7 @@ export const useTasksData = () => {
     };
 
     fetchTasks();
-  }, [dispatch]);
+  }, [dispatch, activeProjectId]);
 
   return { loading, error };
 };
