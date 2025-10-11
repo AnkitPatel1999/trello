@@ -65,14 +65,19 @@ class NotificationServer {
   }
 
   private setupMiddlewares(): void {
+    // CORS middleware - MUST be first
+    this.app.use(cors({
+      origin: '*',
+      credentials: false, // Set to false when using origin: '*'
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    }));
+
+    // Handle preflight requests explicitly
+    this.app.options('*', cors());
+
     // Security middleware
     this.app.use(helmet());
-    
-    // CORS middleware
-    this.app.use(cors({
-      origin: true,
-      credentials: true,
-    }));
 
     // Body parsing middleware
     this.app.use(express.json({ limit: '10mb' }));
@@ -95,7 +100,7 @@ class NotificationServer {
       try {
         const { SendGridWebApiService } = await import('./services/email/SendGridWebApiService');
         const emailService = new SendGridWebApiService();
-        
+
         const result = await emailService.sendEmail({
           to: 'test@example.com',
           subject: 'Test Email from Railway',
@@ -103,7 +108,7 @@ class NotificationServer {
           text: 'Test Email - This is a test email from Railway.',
           from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
         });
-        
+
         res.json({
           success: result.success,
           messageId: result.messageId,
@@ -203,7 +208,7 @@ class NotificationServer {
   private setupGracefulShutdown(): void {
     const shutdown = async (signal: string) => {
       console.log(`Received ${signal}, shutting down gracefully...`);
-      
+
       try {
         console.log('Graceful shutdown completed');
         process.exit(0);
