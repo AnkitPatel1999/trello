@@ -3,7 +3,7 @@ import type { AuthResponse } from '../domain/auth';
 import type { Project, CreateProjectRequest } from '../domain/project';
 import type { Card } from '../domain/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 class ApiService {
   private api: AxiosInstance;

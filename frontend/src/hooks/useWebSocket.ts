@@ -13,7 +13,7 @@ interface Notification {
   createdAt: string;
   readAt?: string;
   metadata: any;
-}
+} 
 
 export const useWebSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -23,11 +23,16 @@ export const useWebSocket = () => {
   const dispatch = useDispatch();
   const socketRef = useRef<Socket | null>(null);
 
+  const API_END_POINT = import.meta.env.API_END_POINT;
+  console.log("import.meta.env.API_END_POINT ",import.meta.env.API_END_POINT)
+  console.log("API_END_POINT ",API_END_POINT)
+  
+
   useEffect(() => {
     if (!user) return;
 
     // Initialize socket connection
-    const newSocket = io(import.meta.env.API_END_POINT || 'http://localhost:3001', {
+    const newSocket = io(API_END_POINT, {
       transports: ['websocket'],
       autoConnect: true,
       timeout: 10000, // 10 seconds timeout
@@ -88,7 +93,7 @@ export const useWebSocket = () => {
 
     newSocket.on('connect_error', (error: any) => {
       console.error('WebSocket connection error:', error);
-      console.log('Attempting to connect to:', import.meta.env.API_END_POINT || 'http://localhost:3001');
+      console.log('Attempting to connect to:', API_END_POINT);
     });
 
     newSocket.on('notification_read', (data: { notificationId: string; readAt: string }) => {
