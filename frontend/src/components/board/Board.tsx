@@ -58,6 +58,7 @@ const Board = () => {
       key: cfg.key,
       title: cfg.title,
       badgeColor: cfg.badgeColor,
+      fontColor: cfg.fontColor, // Add this line
       cards: cardsByStatus[cfg.key] || []
     })),
     [cardsByStatus]
@@ -102,6 +103,7 @@ const Board = () => {
                 key={cfg.key}
                 title={cfg.title}
                 color={cfg.badgeColor}
+                fontColor={cfg.fontColor} // Add this line
                 cards={cfg.cards}
                 allStatuses={allStatusesRef.current}
                 status={cfg.key}

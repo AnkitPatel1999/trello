@@ -13,10 +13,11 @@ type PhaseProps = {
   cards: Card[];
   allStatuses: Status[];
   status: Status;
+  fontColor: string;
   onMove: (id: string, to: Status) => void;
 };
 
-const Phase = memo(({ title, color, cards, allStatuses, status, onMove }: PhaseProps) => {
+const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMove }: PhaseProps) => {
   console.log('Phase rendering:', title);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,7 +34,7 @@ const Phase = memo(({ title, color, cards, allStatuses, status, onMove }: PhaseP
     <>
       <section className="phase" style={{ '--dot-color': color } as React.CSSProperties}>
         <header className="phase-header">
-          <h3 className="ae-label phase-title color-dot">{title}</h3>
+          <h3 className="ae-label phase-title color-dot" style={{ color: fontColor }}>{title}</h3>
           <small>{cards.length}</small>
         </header>
 
