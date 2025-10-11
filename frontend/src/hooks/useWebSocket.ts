@@ -5,6 +5,9 @@ import { useAuth } from './useAuth';
 import { useDispatch } from 'react-redux';
 import { updateCard, addCard } from '../store/cardsSlice';
 
+const API_END_POINT = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'https://trello-production-298c.up.railway.app';
+
+
 interface Notification {
   id: string;
   type: string;
@@ -30,8 +33,6 @@ export const useWebSocket = () => {
   useEffect(() => {
     userIdRef.current = user?.id;
   }, [user?.id]);
-
-  const API_END_POINT = import.meta.env.API_END_POINT;
 
   useEffect(() => {
     if (!user) return;
