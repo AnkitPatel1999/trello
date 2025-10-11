@@ -53,7 +53,7 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
         </div>
       )}
 
-      <div className="">
+      <div className="ae-d-flex ae-gap-5">
         <label>Move to</label>
         <select className='ae-btn ae-btn-outline-dark' value={card.status} onChange={handleMove}>
           {allStatuses.map(s => (

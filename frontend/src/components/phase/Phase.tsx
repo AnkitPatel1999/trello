@@ -4,6 +4,7 @@ import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
 import TaskModal from '../taskmodal/TaskModal';
+import { useTasksData } from '../../hooks/useTasksData';
 import "./phase.css";
 import plus from "../../assets/icons/plus.svg"
 
@@ -19,8 +20,10 @@ type PhaseProps = {
 
 const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMove }: PhaseProps) => {
   console.log('Phase rendering:', title);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { loading, error } = useTasksData();
+
 
   const handleAdd = useCallback(() => {
     setIsModalOpen(true);
@@ -43,6 +46,22 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
           <span className='ae-btn-text'>New</span>
         </button>
 
+        {loading && Array.from({ length: 2 }, (_, index) => (
+          <div className="cards" key={`shimmer-${index}`}>
+            <div className="task-card">
+            <div className="ae-shimmer ca-task-name"></div>
+              {loading && Array.from({ length: 2 }, (_, index) => (
+                <>
+                  <div className="cs-subtask">
+                    <div className="ae-shimmer ca-task-thumbnail"></div>
+                    <div className="ae-shimmer ca-task-subtitle"></div>
+                  </div>
+                </>
+              ))}
+            </div>
+          </div>
+        ))}
+
         <div className="cards">
           {cards.map(card => (
             <Task
@@ -53,10 +72,13 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
             />
           ))}
         </div>
+
+
+
       </section>
 
       {isModalOpen && (
-        <TaskModal 
+        <TaskModal
           open={isModalOpen}
           onClose={handleCloseModal}
           status={status}

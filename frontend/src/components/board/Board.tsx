@@ -16,7 +16,7 @@ import right_icon from "../../assets/icons/right_icon.svg"
 const Board = () => {
   const activeProjectId = useSelector((state: RootState) => state.projects.activeProjectId);
   
-  const { loading, error } = useTasksData();
+  const { error } = useTasksData();
   const { tasks, updateTask } = useTasks();
 
   // ✅ Memoize ALL_STATUSES to prevent recreation
@@ -64,9 +64,9 @@ const Board = () => {
     [cardsByStatus]
   );
 
-  if (loading) {
-    return <div className="board-container">Loading tasks...</div>;
-  }
+  // if (loading) {
+  //   return <div className="board-container">Loading tasks...</div>;
+  // }
 
   if (error) {
     return <div className="board-container">Error: {error}</div>;

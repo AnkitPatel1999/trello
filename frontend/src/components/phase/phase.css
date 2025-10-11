@@ -11,7 +11,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
-  
+
 }
 
 .color-dot {
@@ -42,7 +42,7 @@
   background: #FCFCFC;
   border: 1px solid #EBEBEB;
   box-shadow: 0px 2px 4px 0px #0000000A,
-   0px 0px 4px 0px #00000014;
+    0px 0px 4px 0px #00000014;
 }
 
 .card-title {
@@ -62,4 +62,21 @@
   font-size: 12px;
   color: #6b7280;
   margin-right: 6px;
+}
+
+.ae-shimmer { height: 16px; margin-bottom: 10px;}
+.ae-shimmer.ca-task-name{
+  width: 54px;
+}
+.cs-subtask {
+  display: flex;
+  gap: 5px;
+}
+
+.ae-shimmer.ca-task-thumbnail{
+  width: 16px;
+}
+
+.ae-shimmer.ca-task-subtitle{
+  flex: 1;
 }

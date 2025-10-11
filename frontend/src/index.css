@@ -278,8 +278,7 @@ body {
 /* shimmer effect css start */
 .ae-shimmer {
   position: relative;
-  background-color: #71717a00;
-  overflow: hidden;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.02) 100%);  overflow: hidden;
   border-radius: 4px;
   /* width: 200px;  explicit width */
   height: 20px;  /* explicit height */
