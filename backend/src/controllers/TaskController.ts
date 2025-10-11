@@ -40,6 +40,33 @@ export class TaskController {
       const user = await User.findById(userId).select('name email');
       const createdBy = user?.name || user?.email || 'Unknown';
 
+      // Broadcast task creation to all connected users
+      try {
+        const notificationHandler = (global as any).notificationHandler;
+        if (notificationHandler) {
+          await notificationHandler.broadcastTaskCreated({
+            task: {
+              id: task._id,
+              title: task.title,
+              description: task.description,
+              subtitles: task.subtitles,
+              status: task.status,
+              projectId: task.projectId,
+              userId: task.userId,
+              createdAt: task.createdAt,
+              updatedAt: task.updatedAt,
+            },
+            createdBy: userId,
+          });
+        }
+      } catch (broadcastError) {
+        logger.error('Failed to broadcast task creation', {
+          error: broadcastError instanceof Error ? broadcastError.message : 'Unknown error',
+          taskId: task._id,
+          userId,
+        });
+      }
+
       logger.info('Task created', { taskId: task._id, userId, projectId, title });
 
       ApiResponse.created(res, 'Task created successfully', {
@@ -155,7 +182,7 @@ export class TaskController {
     const userId = req.user!.id;
 
     try {
-      // Remove user ownership check - allow any user to update any task
+      // Get the current task to check if status is changing
       const currentTask = await Task.findById(id);
       if (!currentTask) {
         ApiResponse.notFound(res, 'Task not found');
@@ -191,15 +218,42 @@ export class TaskController {
             status
           );
         } catch (notificationError) {
-          logger.error('Failed to send task move notifications1', {
+          logger.error('Failed to send task move notifications', {
             error: notificationError instanceof Error ? notificationError.message : 'Unknown error',
             taskId: id,
             userId,
             fromStatus: oldStatus,
             toStatus: status,
           });
-          // Don't fail the request if notifications fail
         }
+      }
+
+      // Broadcast task update to all connected users
+      try {
+        const notificationHandler = (global as any).notificationHandler;
+        if (notificationHandler) {
+          await notificationHandler.broadcastTaskUpdate({
+            taskId: task._id.toString(),
+            task: {
+              id: task._id,
+              title: task.title,
+              description: task.description,
+              subtitles: task.subtitles,
+              status: task.status,
+              projectId: task.projectId,
+              userId: task.userId,
+              createdAt: task.createdAt,
+              updatedAt: task.updatedAt,
+            },
+            updatedBy: userId,
+          });
+        }
+      } catch (broadcastError) {
+        logger.error('Failed to broadcast task update', {
+          error: broadcastError instanceof Error ? broadcastError.message : 'Unknown error',
+          taskId: id,
+          userId,
+        });
       }
 
       logger.info('Task updated', { taskId: id, userId, title: task.title });

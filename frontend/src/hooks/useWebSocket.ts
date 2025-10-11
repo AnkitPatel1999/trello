@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './useAuth';
+import { useDispatch } from 'react-redux';
+import { updateCard, addCard } from '../store/cardsSlice';
 
 interface Notification {
   id: string;
@@ -18,6 +20,7 @@ export const useWebSocket = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useAuth();
+  const dispatch = useDispatch();
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -53,6 +56,27 @@ export const useWebSocket = () => {
       setNotifications(prev => [notification, ...prev]);
     });
 
+    // Task update event handlers
+    newSocket.on('task_updated', (data: any) => {
+      console.log('Received task update:', data);
+      // Skip if this user made the update
+      if (data.updatedBy === user.id) {
+        return;
+      }
+      // Update the task in Redux store
+      dispatch(updateCard(data.task));
+    });
+
+    newSocket.on('task_created', (data: any) => {
+      console.log('Received task created:', data);
+      // Skip if this user created the task
+      if (data.createdBy === user.id) {
+        return;
+      }
+      // Add the new task to Redux store
+      dispatch(addCard(data.task));
+    });
+
     newSocket.on('error', (error: any) => {
       console.error('WebSocket error:', error);
     });
@@ -72,15 +96,11 @@ export const useWebSocket = () => {
       );
     });
 
-    newSocket.on('error', (error: any) => {
-      console.error('WebSocket error:', error);
-    });
-
     return () => {
       newSocket.close();
       socketRef.current = null;
     };
-  }, [user]);
+  }, [user, dispatch]);
 
   const markNotificationAsRead = (notificationId: string) => {
     if (socket && socket.connected) {

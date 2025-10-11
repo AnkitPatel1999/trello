@@ -132,4 +132,45 @@ export class NotificationHandler {
       });
     }
   }
+
+  async broadcastTaskUpdate(taskUpdate: any): Promise<void> {
+    try {
+      console.log('Broadcasting task update:', taskUpdate);
+      
+      // Broadcast to all connected users
+      this.io.emit('task_updated', {
+        taskId: taskUpdate.taskId,
+        task: taskUpdate.task,
+        updatedBy: taskUpdate.updatedBy,
+        timestamp: new Date().toISOString(),
+      });
+      
+      console.log('Task update broadcasted successfully');
+    } catch (error) {
+      logger.error('Failed to broadcast task update', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        taskId: taskUpdate.taskId,
+      });
+    }
+  }
+
+  async broadcastTaskCreated(taskData: any): Promise<void> {
+    try {
+      console.log('Broadcasting task created:', taskData);
+      
+      // Broadcast to all connected users
+      this.io.emit('task_created', {
+        task: taskData.task,
+        createdBy: taskData.createdBy,
+        timestamp: new Date().toISOString(),
+      });
+      
+      console.log('Task created broadcasted successfully');
+    } catch (error) {
+      logger.error('Failed to broadcast task created', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        taskId: taskData.task.id,
+      });
+    }
+  }
 }
