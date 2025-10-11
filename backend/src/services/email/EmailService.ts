@@ -46,9 +46,14 @@ export class EmailService {
           user: 'apikey',
           pass: apiKey,
         },
+        // Add timeout configuration
+        connectionTimeout: 5000, // 5 seconds
+        greetingTimeout: 5000,   // 5 seconds
+        socketTimeout: 5000,     // 5 seconds
       });
     } else {
       // Mock transporter for testing
+      console.log('Using mock email transporter - no valid SendGrid API key found');
       this.transporter = {
         sendMail: async () => ({ messageId: 'mock-id' }),
         verify: async () => true,
@@ -57,6 +62,30 @@ export class EmailService {
   }
 
   async sendEmail(options: IEmailOptions): Promise<IEmailResult> {
+    try {
+      // Add timeout wrapper
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Email service timeout')), 8000); // 8 second timeout
+      });
+
+      const emailPromise = this.performSendEmail(options);
+      
+      return await Promise.race([emailPromise, timeoutPromise]);
+    } catch (error) {
+      logger.error('Failed to send email', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        to: options.to,
+        subject: options.subject,
+      });
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  private async performSendEmail(options: IEmailOptions): Promise<IEmailResult> {
     try {
       // Render email template
       const renderedTemplate = await this.templateService.renderTemplate(
@@ -97,7 +126,7 @@ export class EmailService {
         messageId: result.messageId,
       };
     } catch (error) {
-      logger.error('Failed to send email', {
+      logger.error('Failed to perform send email', {
         error: error instanceof Error ? error.message : 'Unknown error',
         to: options.to,
         subject: options.subject,
