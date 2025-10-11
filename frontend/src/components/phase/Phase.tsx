@@ -22,7 +22,7 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
   console.log('Phase rendering:', title);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { loading, error } = useTasksData();
+  const { loading } = useTasksData();
 
 
   const handleAdd = useCallback(() => {
@@ -52,7 +52,7 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
               <div className="ae-shimmer ca-task-name"></div>
               {loading && Array.from({ length: 2 }, (_, index) => (
                 <>
-                  <div className="cs-subtask">
+                  <div className="cs-subtask" key={`subtask-${index}`}>
                     <div className="ae-shimmer ca-task-thumbnail"></div>
                     <div className="ae-shimmer ca-task-subtitle"></div>
                   </div>
