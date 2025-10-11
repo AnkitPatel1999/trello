@@ -5,6 +5,7 @@ import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import type { RootState } from '../../store';
 import './task.css';
+import { STATUS_DISPLAY_NAMES } from '../../domain/phases';
 
 interface TaskProps {
   card: Card;
@@ -56,7 +57,7 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
         <label>Move to</label>
         <select className='ae-btn ae-btn-outline-dark' value={card.status} onChange={handleMove}>
           {allStatuses.map(s => (
-            <option key={s} value={s}>{s}</option>
+            <option key={s} value={s}>{STATUS_DISPLAY_NAMES[s]}</option>
           ))}
         </select>
       </div>

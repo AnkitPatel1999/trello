@@ -14,3 +14,9 @@ export const PHASES: PhaseConfig[] = [
   { key: Status.Done, title: 'Done', badgeColor: '#D0F8E9' , fontColor: '#166747'},
   { key: Status.Deployed, title: 'Deployed', badgeColor: '#FFF6D7' , fontColor: '#746224'},
 ];
+
+// Derive display names from PHASES to avoid duplication
+export const STATUS_DISPLAY_NAMES: Record<Status, string> = PHASES.reduce((acc, phase) => {
+  acc[phase.key] = phase.title;
+  return acc;
+}, {} as Record<Status, string>);
