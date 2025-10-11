@@ -51,7 +51,16 @@ const LeftSidebar = () => {
                     </li>
                     <li className="sidebar-item folder-item">
                         <ul className="nested-list">
-                            {loading && <li className="nested-item">Loading projects...</li>}
+                            {loading && (
+                                <>
+                                <li className="nested-item">
+                                    <div className="ae-shimmer"></div>
+                                </li>
+                                <li className="nested-item">
+                                    <div className="ae-shimmer"></div>
+                                </li>
+                            </>
+                            )}
                             {error && <li className="nested-item error">Error: {error}</li>}
                             {projects.map(project => (
                                 <li 

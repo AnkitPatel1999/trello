@@ -142,3 +142,9 @@
 .nested-item:only-child::after {
     display: none;
 }
+
+.nested-item .ae-shimmer{
+    width: 100%;
+    height: 100;
+    margin-bottom: 0;
+}
