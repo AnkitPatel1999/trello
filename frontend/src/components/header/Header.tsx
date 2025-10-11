@@ -119,7 +119,7 @@ export default function Header() {
                                         isSuperUser={isSuperUser}
                                         onToggle={toggleSuperUser}
                                     />
-                                    <span className="user-email">{user.email}</span>
+                                    <span className="user-email">{user.name}</span>
                                     <button 
                                         className="ae-btn ae-btn-red ae-gap-5"
                                         onClick={handleLogout}

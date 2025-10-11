@@ -83,8 +83,8 @@ body {
   background-color: #EF4444;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
