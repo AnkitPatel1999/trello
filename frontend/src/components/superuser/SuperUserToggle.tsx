@@ -70,11 +70,11 @@ const SuperUserToggle = ({ isSuperUser, onToggle }: SuperUserToggleProps) => {
             <span className="toggle-slider"></span>
           </div>
         </label>
-        {isSuperUser && (
+        {/* {isSuperUser && (
           <div className="super-user-indicator">
             <span className="indicator-text">👑 Admin View Active</span>
           </div>
-        )}
+        )} */}
       </div>
 
       {showPasswordPrompt && (
