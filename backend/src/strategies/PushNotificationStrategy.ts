@@ -50,7 +50,7 @@ export class PushNotificationStrategy extends BaseNotificationStrategy {
       
       return {
         success: true,
-        deliveryId: `push_${notification._id}_${Date.now()}`,
+        deliveryId: `push_${(notification as any)._id}_${Date.now()}`,
         deliveredAt: new Date(),
       };
     } catch (error) {

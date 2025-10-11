@@ -3,8 +3,8 @@ import { DeliveryChannel } from '../enums';
 
 export interface INotificationStrategy {
   channel: DeliveryChannel;
-  canDeliver(notification: INotification): Promise<boolean>;
-  deliver(notification: INotification): Promise<boolean>;
+  canDeliver(context: INotificationStrategyContext): Promise<boolean>;
+  deliver(context: INotificationStrategyContext): Promise<INotificationStrategyResult>;
   getPriority(): number;
 }
 
@@ -34,6 +34,8 @@ export interface INotificationStrategyContext {
         endTime: string;
         timezone: string;
       };
+      mutedChannels: string[];
+      notificationTypes: Record<string, Record<string, boolean>>;
     };
   };
   notification: INotification;

@@ -39,7 +39,7 @@ export abstract class BaseNotificationStrategy implements INotificationStrategy 
 
   protected parseTime(timeString: string): number {
     const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
+    return (hours || 0) * 60 + (minutes || 0);
   }
 
   protected isChannelMuted(context: INotificationStrategyContext): boolean {

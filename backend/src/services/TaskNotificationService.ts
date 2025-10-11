@@ -97,7 +97,7 @@ export class TaskNotificationService {
               toStatus,
               movedAt: new Date().toISOString(),
             },
-            channels: ['UI'],
+            channels: [DeliveryChannel.UI],
             metadata: {
               priority: 'normal',
             },

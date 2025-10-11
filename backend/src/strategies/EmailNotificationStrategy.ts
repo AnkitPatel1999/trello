@@ -59,7 +59,7 @@ export class EmailNotificationStrategy extends BaseNotificationStrategy {
         
         return {
           success: true,
-          deliveryId: `email_digest_${notification._id}_${Date.now()}`,
+          deliveryId: `email_digest_${(notification as any)._id}_${Date.now()}`,
           deliveredAt: new Date(),
         };
       }
@@ -68,7 +68,6 @@ export class EmailNotificationStrategy extends BaseNotificationStrategy {
       const emailResult = await this.emailService.sendNotificationEmail({
         to: user.email,
         subject: notification.title,
-        template: 'single-notification',
         data: {
           userName: user.name,
           notificationTitle: notification.title,
@@ -85,7 +84,7 @@ export class EmailNotificationStrategy extends BaseNotificationStrategy {
         logger.info(`Email notification sent: ${notification.title} to ${user.email}`);
         return {
           success: true,
-          deliveryId: emailResult.messageId,
+          deliveryId: emailResult.messageId || `email_${Date.now()}`,
           deliveredAt: new Date(),
         };
       } else {

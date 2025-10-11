@@ -1,5 +1,6 @@
 import { INotification, ICreateNotificationRequest } from '../../interfaces/INotification';
 import { NotificationStatus } from '../../enums/NotificationStatus.enum';
+import { DeliveryChannel } from '../../enums/DeliveryChannel.enum';
 import { NotificationRepository } from '../../repositories/NotificationRepository';
 
 export class NotificationService {
@@ -16,7 +17,7 @@ export class NotificationService {
       title: request.title,
       message: request.message,
       data: request.data || {},
-      channels: request.channels || ['UI'],
+      channels: request.channels || [DeliveryChannel.UI],
       status: NotificationStatus.PENDING,
       deliveryAttempts: 0,
       metadata: {

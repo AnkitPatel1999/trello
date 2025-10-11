@@ -65,7 +65,7 @@ export abstract class BaseRepository<T extends Document> {
       }
 
       if (options.populate) {
-        query = query.populate(options.populate);
+        query = query.populate(options.populate) as any;
       }
 
       return await query.exec();

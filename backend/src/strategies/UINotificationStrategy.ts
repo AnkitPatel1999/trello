@@ -48,7 +48,7 @@ export class UINotificationStrategy extends BaseNotificationStrategy {
       
       return {
         success: true,
-        deliveryId: `ui_${notification._id}_${Date.now()}`,
+        deliveryId: `ui_${(notification as any)._id}_${Date.now()}`,
         deliveredAt: new Date(),
       };
     } catch (error) {

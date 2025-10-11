@@ -18,11 +18,12 @@ export class UserSessionRepository extends BaseRepository<IUserSessionDocument> 
     const existingSession = await this.findOne({ socketId: sessionData.socketId });
     
     if (existingSession) {
-      return this.update(existingSession._id!, {
+      const updatedSession = await this.update(existingSession._id!, {
         ...sessionData,
         lastActivity: new Date(),
         isActive: true,
       });
+      return updatedSession!;
     } else {
       return this.create(sessionData);
     }
