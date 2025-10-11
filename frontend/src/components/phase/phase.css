@@ -64,7 +64,7 @@
   margin-right: 6px;
 }
 
-.ae-shimmer { height: 16px; margin-bottom: 10px;}
+.task-card .ae-shimmer { height: 16px; margin-bottom: 10px;}
 .ae-shimmer.ca-task-name{
   width: 54px;
 }

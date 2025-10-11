@@ -49,7 +49,7 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
         {loading && Array.from({ length: 2 }, (_, index) => (
           <div className="cards" key={`shimmer-${index}`}>
             <div className="task-card">
-            <div className="ae-shimmer ca-task-name"></div>
+              <div className="ae-shimmer ca-task-name"></div>
               {loading && Array.from({ length: 2 }, (_, index) => (
                 <>
                   <div className="cs-subtask">
