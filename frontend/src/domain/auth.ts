@@ -13,6 +13,7 @@ export interface AuthState {
   error: string | null;
   otpSent: boolean;
   email: string | null;
+  isSuperUser: boolean;
 }
 
 export interface LoginRequest {

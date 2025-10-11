@@ -40,6 +40,7 @@ const getInitialAuthState = (): AuthState => {
         error: null,
         otpSent: false,
         email: null,
+        isSuperUser: false,
       };
     }
   } catch (error) {
@@ -54,6 +55,7 @@ const getInitialAuthState = (): AuthState => {
     error: null,
     otpSent: false,
     email: null,
+    isSuperUser: false,
   };
 };
 
@@ -78,6 +80,7 @@ const authSlice = createSlice({
       state.error = null;
       state.otpSent = false;
       state.email = null;
+      state.isSuperUser = false;
     },
     clearError(state) {
       state.error = null;
@@ -86,6 +89,9 @@ const authSlice = createSlice({
       state.otpSent = false;
       state.email = null;
       state.error = null;
+    },
+    setSuperUser(state, action: PayloadAction<boolean>) {
+      state.isSuperUser = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -130,5 +136,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logout, clearError, resetOtpState } = authSlice.actions;
+export const { setUser, logout, clearError, resetOtpState, setSuperUser } = authSlice.actions;
 export default authSlice.reducer;

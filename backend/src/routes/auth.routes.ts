@@ -23,4 +23,7 @@ router.post(
 // Logout
 router.post('/logout', authController.logout);
 
+// Verify Super User Password
+router.post('/verify-super-user', authController.verifySuperUserPassword);
+
 export { router as authRoutes };

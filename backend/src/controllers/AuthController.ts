@@ -176,4 +176,25 @@ export class AuthController {
 
     ApiResponse.success(res, 'Logged out successfully');
   });
+
+  verifySuperUserPassword = asyncHandler(async (req: Request, res: Response) => {
+    const { password } = req.body;
+
+    // In a real implementation, this would be hashed and stored securely
+    // For demo purposes, using a simple password
+    const SUPER_USER_PASSWORD = process.env.SUPER_USER_PASSWORD || 'admin123';
+
+    if (!password) {
+      ApiResponse.badRequest(res, 'Password is required');
+      return;
+    }
+
+    if (password === SUPER_USER_PASSWORD) {
+      logger.info('Super user password verified successfully');
+      ApiResponse.success(res, 'Super user access granted', { success: true });
+    } else {
+      logger.warn('Invalid super user password attempt');
+      ApiResponse.badRequest(res, 'Invalid password');
+    }
+  });
 }

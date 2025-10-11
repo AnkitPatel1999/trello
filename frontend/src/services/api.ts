@@ -116,6 +116,12 @@ class ApiService {
   async deleteTask(id: string): Promise<void> {
     await this.api.delete(`/tasks/${id}`);
   }
+
+  // Super User API
+  async verifySuperUserPassword(password: string): Promise<{ success: boolean; message: string }> {
+    const response: AxiosResponse<{ success: boolean; message: string }> = await this.api.post('/auth/verify-super-user', { password });
+    return response.data;
+  }
 }
 
 // Export singleton instance

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useWebSocket } from '../../hooks/useWebSocket';
+import { useSuperUser } from '../../hooks/useSuperUser';
 import ProjectModal from '../projectmodal/ProjectModal';
+import SuperUserToggle from '../superuser/SuperUserToggle';
 import "./header.css";
 
 import tabler_icon from '../../assets/icons/tabler_icon.svg';
@@ -12,6 +14,7 @@ export default function Header() {
     console.log('Header rendering');
     const { user, logout } = useAuth();
     const { notifications, markNotificationAsRead, isConnected } = useWebSocket();
+    const { isSuperUser, toggleSuperUser } = useSuperUser();
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
@@ -112,6 +115,10 @@ export default function Header() {
 
                             {user && (
                                 <div className="ae-d-flex ae-align-center ae-gap-5">
+                                    <SuperUserToggle 
+                                        isSuperUser={isSuperUser}
+                                        onToggle={toggleSuperUser}
+                                    />
                                     <span className="user-email">{user.email}</span>
                                     <button 
                                         className="ae-btn ae-btn-red ae-gap-5"

@@ -1,7 +1,9 @@
 // frontend/src/components/task/Task.tsx
 import React, { memo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
+import type { RootState } from '../../store';
 import './task.css';
 
 interface TaskProps {
@@ -12,6 +14,7 @@ interface TaskProps {
 
 const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
   console.log('Task rendering:', card.id);
+  const isSuperUser = useSelector((state: RootState) => state.auth.isSuperUser);
 
   const handleMove = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     onMove(card.id, e.target.value as Status);
@@ -36,6 +39,17 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
             </li>
           ))}
         </ul>
+      )}
+
+      {isSuperUser && (
+        <div className="task-super-user-info">
+          <div className="super-user-meta">
+            <small>Created: {new Date(card.createdAt || '').toLocaleDateString()}</small>
+            {card.updatedAt && (
+              <small>Updated: {new Date(card.updatedAt).toLocaleDateString()}</small>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="task-move">
