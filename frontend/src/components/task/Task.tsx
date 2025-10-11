@@ -1,7 +1,7 @@
 // frontend/src/components/task/Task.tsx
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { Status } from '../../domain/status';
+import { Status, ALL_STATUSES } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import type { RootState } from '../../store';
 import './task.css';
@@ -9,22 +9,43 @@ import { STATUS_DISPLAY_NAMES } from '../../domain/phases';
 
 interface TaskProps {
   card: Card;
-  allStatuses: Status[];
   onMove: (id: string, to: Status) => void;
 }
 
-const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
-  console.log('Task rendering:', card.id);
+const Task = memo(({ card, onMove }: TaskProps) => {
   const isSuperUser = useSelector((state: RootState) => state.auth.isSuperUser);
 
   const handleMove = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     onMove(card.id, e.target.value as Status);
   }, [card.id, onMove]);
 
-  const initials = card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  // ✅ Memoize initials calculation
+  const initials = useMemo(() => 
+    card.title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2),
+    [card.title]
+  );
+
+  // ✅ Memoize tooltip
+  const tooltip = useMemo(() => 
+    isSuperUser 
+      ? `Created by: ${card.createdBy || 'Unknown'} on ${new Date(card.createdAt || '').toLocaleString()}`
+      : undefined,
+    [isSuperUser, card.createdBy, card.createdAt]
+  );
+
+  // ✅ Memoize dates
+  const createdDate = useMemo(() => 
+    card.createdAt ? new Date(card.createdAt).toLocaleDateString() : '',
+    [card.createdAt]
+  );
+
+  const updatedDate = useMemo(() => 
+    card.updatedAt ? new Date(card.updatedAt).toLocaleDateString() : null,
+    [card.updatedAt]
+  );
 
   return (
-    <div className="task-card" title={isSuperUser ? `Created by: ${card.createdBy || 'Unknown'} on ${new Date(card.createdAt || '').toLocaleString()}` : undefined}>
+    <div className="task-card" title={tooltip}>
       <div className="task-header">
         <div className="task-icon">
           {initials}
@@ -45,9 +66,9 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
       {isSuperUser && (
         <div className="task-super-user-info">
           <div className="super-user-meta">
-            <small>Created: {new Date(card.createdAt || '').toLocaleDateString()}</small>
-            {card.updatedAt && (
-              <small>Updated: {new Date(card.updatedAt).toLocaleDateString()}</small>
+            <small>Created: {createdDate}</small>
+            {updatedDate && (
+              <small>Updated: {updatedDate}</small>
             )}
           </div>
         </div>
@@ -56,7 +77,7 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
       <div className="ae-d-flex ae-gap-5">
         <label>Move to</label>
         <select className='ae-btn ae-btn-outline-dark' value={card.status} onChange={handleMove}>
-          {allStatuses.map(s => (
+          {ALL_STATUSES.map(s => (
             <option key={s} value={s}>{STATUS_DISPLAY_NAMES[s]}</option>
           ))}
         </select>
@@ -64,14 +85,19 @@ const Task = memo(({ card, allStatuses, onMove }: TaskProps) => {
     </div>
   );
 }, (prevProps, nextProps) => {
-  // ✅ Custom comparison function
-  // Only re-render if card data actually changed
+  // ✅ Optimized comparison
+  const prevCard = prevProps.card;
+  const nextCard = nextProps.card;
+  
   return (
-    prevProps.card.id === nextProps.card.id &&
-    prevProps.card.title === nextProps.card.title &&
-    prevProps.card.description === nextProps.card.description &&
-    prevProps.card.status === nextProps.card.status &&
-    prevProps.card.subtitles === nextProps.card.subtitles &&
+    prevCard.id === nextCard.id &&
+    prevCard.title === nextCard.title &&
+    prevCard.description === nextCard.description &&
+    prevCard.status === nextCard.status &&
+    prevCard.createdAt === nextCard.createdAt &&
+    prevCard.updatedAt === nextCard.updatedAt &&
+    prevCard.createdBy === nextCard.createdBy &&
+    JSON.stringify(prevCard.subtitles) === JSON.stringify(nextCard.subtitles) &&
     prevProps.onMove === nextProps.onMove
   );
 });

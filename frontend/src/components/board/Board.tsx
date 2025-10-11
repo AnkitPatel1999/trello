@@ -1,9 +1,9 @@
 // frontend/src/components/board/Board.tsx
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Phase from '../phase/Phase';
 import { PHASES } from '../../domain/phases';
-import { Status, ALL_STATUSES } from '../../domain/status';
+import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import { useTasks } from '../../hooks/useTasks';
 import { useTasksData } from '../../hooks/useTasksData';
@@ -19,9 +19,6 @@ const Board = () => {
   const { error } = useTasksData();
   const { tasks, updateTask } = useTasks();
 
-  // ✅ Memoize ALL_STATUSES to prevent recreation
-  const allStatusesRef = useRef(ALL_STATUSES as Status[]);
-
   // Memoize filtered cards
   const cards = useMemo(() => 
     tasks.filter(task => task.projectId === activeProjectId),
@@ -29,15 +26,14 @@ const Board = () => {
   );
 
   // Memoize task count
-  const taskCount = useMemo(() => cards.length, [cards]);
+  const taskCount = useMemo(() => cards.length, [cards.length]);
 
-  // ✅ Memoize cards grouped by status with stable references
+  // ✅ Optimize: Group cards by status with shallow comparison
   const cardsByStatus = useMemo(() => {
     const grouped: Record<Status, Card[]> = {} as Record<Status, Card[]>;
     
     PHASES.forEach(phase => {
-      const phaseCards = cards.filter(card => card.status === phase.key);
-      grouped[phase.key] = phaseCards;
+      grouped[phase.key] = cards.filter(card => card.status === phase.key);
     });
     
     return grouped;
@@ -51,22 +47,6 @@ const Board = () => {
       console.error('Failed to move task:', err);
     }
   }, [updateTask]);
-
-  // ✅ Memoize phase configurations with stable array references
-  const phaseConfigs = useMemo(() => 
-    PHASES.map(cfg => ({
-      key: cfg.key,
-      title: cfg.title,
-      badgeColor: cfg.badgeColor,
-      fontColor: cfg.fontColor, // Add this line
-      cards: cardsByStatus[cfg.key] || []
-    })),
-    [cardsByStatus]
-  );
-
-  // if (loading) {
-  //   return <div className="board-container">Loading tasks...</div>;
-  // }
 
   if (error) {
     return <div className="board-container">Error: {error}</div>;
@@ -98,14 +78,13 @@ const Board = () => {
             className="board"
             style={{ '--phases': PHASES.length } as React.CSSProperties}
           >
-            {phaseConfigs.map(cfg => (
+            {PHASES.map(cfg => (
               <Phase
                 key={cfg.key}
                 title={cfg.title}
                 color={cfg.badgeColor}
-                fontColor={cfg.fontColor} // Add this line
-                cards={cfg.cards}
-                allStatuses={allStatusesRef.current}
+                fontColor={cfg.fontColor}
+                cards={cardsByStatus[cfg.key] || []}
                 status={cfg.key}
                 onMove={handleMove}
               />

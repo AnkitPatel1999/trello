@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+// frontend/src/hooks/useWebSocket.ts
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './useAuth';
 import { useDispatch } from 'react-redux';
@@ -22,11 +23,15 @@ export const useWebSocket = () => {
   const { user } = useAuth();
   const dispatch = useDispatch();
   const socketRef = useRef<Socket | null>(null);
+  
+  // ✅ Store user.id in ref to avoid dependency
+  const userIdRef = useRef(user?.id);
+  
+  useEffect(() => {
+    userIdRef.current = user?.id;
+  }, [user?.id]);
 
   const API_END_POINT = import.meta.env.API_END_POINT;
-  console.log("import.meta.env.API_END_POINT ",import.meta.env.API_END_POINT)
-  console.log("API_END_POINT ",API_END_POINT)
-  
 
   useEffect(() => {
     if (!user) return;
@@ -35,7 +40,7 @@ export const useWebSocket = () => {
     const newSocket = io(API_END_POINT, {
       transports: ['websocket'],
       autoConnect: true,
-      timeout: 10000, // 10 seconds timeout
+      timeout: 10000,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -45,58 +50,46 @@ export const useWebSocket = () => {
     socketRef.current = newSocket;
     setSocket(newSocket);
 
-    // Connection event handlers
-    newSocket.on('connect', () => {
+    // ✅ Stable event handlers
+    const handleConnect = () => {
       console.log('WebSocket connected:', newSocket.id);
       setIsConnected(true);
-      
-      // Join user room
       console.log('Joining user room:', user.id);
       newSocket.emit('join', { userId: user.id });
-    });
+    };
 
-    newSocket.on('disconnect', (reason) => {
+    const handleDisconnect = (reason: string) => {
       console.log('WebSocket disconnected:', reason);
       setIsConnected(false);
-    });
+    };
 
-    // Notification event handlers
-    newSocket.on('notification', (notification: Notification) => {
+    const handleNotification = (notification: Notification) => {
       console.log('Received notification:', notification);
       setNotifications(prev => [notification, ...prev]);
-    });
+    };
 
-    // Task update event handlers
-    newSocket.on('task_updated', (data: any) => {
+    const handleTaskUpdated = (data: any) => {
       console.log('Received task update:', data);
-      // Skip if this user made the update
-      if (data.updatedBy === user.id) {
-        return;
-      }
-      // Update the task in Redux store
+      if (data.updatedBy === userIdRef.current) return;
       dispatch(updateCard(data.task));
-    });
+    };
 
-    newSocket.on('task_created', (data: any) => {
+    const handleTaskCreated = (data: any) => {
       console.log('Received task created:', data);
-      // Skip if this user created the task
-      if (data.createdBy === user.id) {
-        return;
-      }
-      // Add the new task to Redux store
+      if (data.createdBy === userIdRef.current) return;
       dispatch(addCard(data.task));
-    });
+    };
 
-    newSocket.on('error', (error: any) => {
+    const handleError = (error: any) => {
       console.error('WebSocket error:', error);
-    });
+    };
 
-    newSocket.on('connect_error', (error: any) => {
+    const handleConnectError = (error: any) => {
       console.error('WebSocket connection error:', error);
       console.log('Attempting to connect to:', API_END_POINT);
-    });
+    };
 
-    newSocket.on('notification_read', (data: { notificationId: string; readAt: string }) => {
+    const handleNotificationRead = (data: { notificationId: string; readAt: string }) => {
       console.log('Notification marked as read:', data);
       setNotifications(prev => 
         prev.map(notif => 
@@ -105,23 +98,41 @@ export const useWebSocket = () => {
             : notif
         )
       );
-    });
+    };
+
+    // Register event listeners
+    newSocket.on('connect', handleConnect);
+    newSocket.on('disconnect', handleDisconnect);
+    newSocket.on('notification', handleNotification);
+    newSocket.on('task_updated', handleTaskUpdated);
+    newSocket.on('task_created', handleTaskCreated);
+    newSocket.on('error', handleError);
+    newSocket.on('connect_error', handleConnectError);
+    newSocket.on('notification_read', handleNotificationRead);
 
     return () => {
+      newSocket.off('connect', handleConnect);
+      newSocket.off('disconnect', handleDisconnect);
+      newSocket.off('notification', handleNotification);
+      newSocket.off('task_updated', handleTaskUpdated);
+      newSocket.off('task_created', handleTaskCreated);
+      newSocket.off('error', handleError);
+      newSocket.off('connect_error', handleConnectError);
+      newSocket.off('notification_read', handleNotificationRead);
       newSocket.close();
       socketRef.current = null;
     };
-  }, [user, dispatch]);
+  }, [user, dispatch, API_END_POINT]);
 
-  const markNotificationAsRead = (notificationId: string) => {
-    if (socket && socket.connected) {
-      socket.emit('mark_notification_read', { notificationId });
+  const markNotificationAsRead = useCallback((notificationId: string) => {
+    if (socketRef.current?.connected) {
+      socketRef.current.emit('mark_notification_read', { notificationId });
     }
-  };
+  }, []);
 
-  const clearNotifications = () => {
+  const clearNotifications = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
   return {
     socket,

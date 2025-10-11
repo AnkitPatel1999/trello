@@ -1,5 +1,5 @@
 // frontend/src/components/phase/Phase.tsx
-import React, { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { Status } from '../../domain/status';
 import type { Card } from '../../domain/types';
 import Task from '../task/Task';
@@ -12,18 +12,14 @@ type PhaseProps = {
   title: string;
   color: string;
   cards: Card[];
-  allStatuses: Status[];
   status: Status;
   fontColor: string;
   onMove: (id: string, to: Status) => void;
 };
 
-const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMove }: PhaseProps) => {
-  console.log('Phase rendering:', title);
-
+const Phase = memo(({ title, color, fontColor, cards, status, onMove }: PhaseProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { loading } = useTasksData();
-
 
   const handleAdd = useCallback(() => {
     setIsModalOpen(true);
@@ -50,7 +46,7 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
           <div className="cards" key={`shimmer-${index}`}>
             <div className="task-card">
               <div className="ae-shimmer ca-task-name"></div>
-              {loading && Array.from({ length: 2 }, (_, subIndex) => (
+              {Array.from({ length: 2 }, (_, subIndex) => (
                 <div key={`subtask-${index}-${subIndex}`} className="cs-subtask">
                   <div className="ae-shimmer ca-task-thumbnail"></div>
                   <div className="ae-shimmer ca-task-subtitle"></div>
@@ -65,14 +61,10 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
             <Task
               key={card.id}
               card={card}
-              allStatuses={allStatuses}
               onMove={onMove}
             />
           ))}
         </div>
-
-
-
       </section>
 
       {isModalOpen && (
@@ -85,12 +77,21 @@ const Phase = memo(({ title, color, fontColor, cards, allStatuses, status, onMov
     </>
   );
 }, (prevProps, nextProps) => {
-  // ✅ Only re-render if cards array reference or length changed
-  return (
-    prevProps.cards === nextProps.cards &&
-    prevProps.title === nextProps.title &&
-    prevProps.onMove === nextProps.onMove
-  );
+  // ✅ Deep comparison for cards array
+  if (prevProps.cards.length !== nextProps.cards.length) return false;
+  if (prevProps.title !== nextProps.title) return false;
+  if (prevProps.onMove !== nextProps.onMove) return false;
+  
+  // Check if cards array content changed
+  for (let i = 0; i < prevProps.cards.length; i++) {
+    if (prevProps.cards[i].id !== nextProps.cards[i].id ||
+        prevProps.cards[i].status !== nextProps.cards[i].status ||
+        prevProps.cards[i].title !== nextProps.cards[i].title) {
+      return false;
+    }
+  }
+  
+  return true;
 });
 
 Phase.displayName = 'Phase';
