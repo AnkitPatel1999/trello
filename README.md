@@ -173,6 +173,15 @@ VITE_API_URL=http://localhost:3001/api/v1
 - **CORS Configuration** - Secure cross-origin requests
 - **Environment Variables** - Sensitive data protection
 
+## 👑 Super User Access
+
+The application includes a super-user mode that provides enhanced administrative capabilities:
+
+- **Password**: `admin123`
+- **Features**: Access to creation/update timestamps, user information, and enhanced metadata
+- **Activation**: Toggle available in the UI with password protection
+- **Security**: Password is configurable via `SUPER_USER_PASSWORD` environment variable
+
 ## 📱 Deployment
 
 ### **Backend (Railway)**
