@@ -51,7 +51,36 @@
 - **Axios** - HTTP client for API calls
 - **Socket.IO Client** - Real-time communication
 
+## 🗄️ Database and Design Decisions
 
+### **MongoDB Selection Rationale**
+
+This project leverages MongoDB's document-based architecture for several strategic advantages:
+
+- **Dynamic Schema Evolution**: As the project management features expand, MongoDB's schema flexibility allows seamless addition of new fields without complex migrations
+- **Horizontal Scaling**: Built for distributed environments, MongoDB supports future growth as user base and data volume increase
+- **Developer Productivity**: BSON's JSON-like structure aligns perfectly with our TypeScript/Node.js stack, reducing data transformation overhead
+- **Complex Data Relationships**: Project hierarchies, task dependencies, and user permissions map naturally to nested document structures
+
+The semi-structured nature of project management data—where tasks may have varying metadata, custom fields, and evolving requirements—makes MongoDB's document model an ideal choice over rigid relational schemas.
+
+### **Architecture Patterns**
+
+#### **Multi-Channel Notification Strategy**
+
+Our notification system implements a sophisticated Strategy pattern with priority-based delivery:
+
+**Core Components:**
+- **BaseNotificationStrategy**: Abstract foundation providing common validation logic (quiet hours, channel muting, expiration checks)
+- **Delivery Channels**: UI (priority 1),  Email (priority 3)
+- **Context-Aware Delivery**: Each strategy evaluates user preferences, online status, and notification metadata before delivery
+
+**Implementation Highlights:**
+- **UINotificationStrategy**: Real-time WebSocket delivery for active users with highest priority
+- **EmailNotificationStrategy**: Fallback delivery for offline users via SendGrid integration
+
+
+This architecture enables seamless addition of new notification channels (e.g., Slack, Teams) without modifying existing delivery logic, while maintaining user preference compliance and delivery reliability.
 
 ## 🚀 Getting Started
 
